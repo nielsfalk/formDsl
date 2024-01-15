@@ -17,6 +17,8 @@ junit = "4.13.2"
 kotlin = "1.9.21"
 ktor = "2.3.7"
 logback = "1.4.14"
+coroutines = "1.7.1"
+kotest = "5.8.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -38,6 +40,12 @@ logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
+kotest-property = { group = "io.kotest", name = "kotest-property", version.ref = "kotest" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -46,3 +54,4 @@ jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotestMultiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
