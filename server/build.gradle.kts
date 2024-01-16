@@ -29,6 +29,7 @@ dependencies {
     testImplementation(libs.kotest.framework.engine)
     testImplementation(libs.kotest.framework.datatest)
     testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.ktor.client.content.negotiation)
 }
 
 tasks.withType<Test>().configureEach {
