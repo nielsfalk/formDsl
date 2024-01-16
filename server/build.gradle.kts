@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     application
+    alias(libs.plugins.serialization)
 }
 
 group = "de.nielsfalk.form_dsl"
@@ -18,4 +19,18 @@ dependencies {
     implementation(libs.ktor.server.netty)
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
+    implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.server.call.logging)
+    implementation(libs.ktor.server.default.headers)
+    implementation(libs.ktor.server.auto.head.response)
+
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.kotest.framework.engine)
+    testImplementation(libs.kotest.framework.datatest)
+    testImplementation(libs.kotest.runner.junit5)
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
