@@ -10,14 +10,14 @@ import kotlinx.serialization.Serializable
 
 class ClientTest : StringSpec({
     "test read json" {
-        client.get("http://ip.jsontest.com/").apply {
+        createClient().get("http://ip.jsontest.com/").apply {
             status shouldBe HttpStatusCode.OK
-            body<AllFormsResponse>().ip.shouldNotBeEmpty()
+            body<IpResponse>().ip.shouldNotBeEmpty()
         }
     }
 })
 
 @Serializable
-data class AllFormsResponse(
+data class IpResponse(
     val ip: String
 )

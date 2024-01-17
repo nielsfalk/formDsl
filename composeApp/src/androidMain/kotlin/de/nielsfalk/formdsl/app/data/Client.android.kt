@@ -5,9 +5,9 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 
-actual val client: HttpClient
-    get() = HttpClient(OkHttp){
-        install(ContentNegotiation){
+actual fun createClient(): HttpClient =
+    HttpClient(OkHttp) {
+        install(ContentNegotiation) {
             json()
         }
     }

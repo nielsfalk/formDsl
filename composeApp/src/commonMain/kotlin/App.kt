@@ -1,21 +1,20 @@
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import de.nielsfalk.formdsl.app.presentation.GreeterScreen
-import de.nielsfalk.formdsl.app.presentation.GreeterState
-import de.nielsfalk.formdsl.app.presentation.GreeterViewModel
-import org.jetbrains.compose.resources.ExperimentalResourceApi
+import androidx.compose.runtime.*
+import de.nielsfalk.formdsl.app.data.FormsRepository
+import de.nielsfalk.formdsl.app.presentation.*
+import dev.icerock.moko.mvvm.compose.getViewModel
+import dev.icerock.moko.mvvm.compose.viewModelFactory
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun App() {
     MaterialTheme {
-        var greeterState by remember { mutableStateOf(GreeterState()) }
-        val viewModel = GreeterViewModel(greeterState, setState = { greeterState = it })
+        val repository = FormsRepository()
+        val viewModel: FormsViewModel = getViewModel(
+            key = "formViewModel",
+            factory = viewModelFactory { FormsViewModel(repository) }
+        )
+        val state: FormsState by viewModel.state.collectAsState()
 
-        GreeterScreen(greeterState, viewModel::toggleShowContent)
+        FormsListScreen(state, viewModel::onEvent)
     }
 }

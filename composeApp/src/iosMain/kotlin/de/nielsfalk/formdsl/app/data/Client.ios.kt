@@ -1,13 +1,13 @@
 package de.nielsfalk.formdsl.app.data
 
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.darwin.Darwin
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.*
+import io.ktor.client.engine.darwin.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 
-actual val client: HttpClient
-    get() = HttpClient(Darwin) {
-        install(ContentNegotiation){
+actual fun createClient(): HttpClient =
+    HttpClient(Darwin) {
+        install(ContentNegotiation) {
             json()
         }
     }
