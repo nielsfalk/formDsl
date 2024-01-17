@@ -17,9 +17,9 @@ kotlin {
             }
         }
     }
-    
+
     jvm("desktop")
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -30,7 +30,7 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         val desktopMain by getting
         val desktopTest by getting
@@ -55,6 +55,7 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.content.negotiation)
+            api(libs.moko.mvvm.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotest.assertions.core)

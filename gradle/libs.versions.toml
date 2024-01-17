@@ -21,6 +21,7 @@ coroutines = "1.7.1"
 kotest = "5.8.0"
 kotlinx-serialization = "1.6.2"
 kotlinx-datetime = "0.5.0"
+moko-mvvm = "0.16.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -65,7 +66,7 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
 ktor-client-curl = { module = "io.ktor:ktor-client-curl", version.ref = "ktor" }
 ktor-client-winhttp = { module = "io.ktor:ktor-client-winhttp", version.ref = "ktor" }
-
+moko-mvvm-compose = { module = "dev.icerock.moko:mvvm-compose", version.ref="moko-mvvm" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
