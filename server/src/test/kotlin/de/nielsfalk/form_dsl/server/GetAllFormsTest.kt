@@ -13,10 +13,9 @@ import io.ktor.client.request.*
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
+import kotlinx.serialization.json.Json
 
 class GetAllFormsTest : StringSpec({
-
-
     "GET /forms" {
         testApplication {
             application {
@@ -37,6 +36,6 @@ class GetAllFormsTest : StringSpec({
 private fun ApplicationTestBuilder.httpClient() =
     createClient {
         install(ContentNegotiation) {
-            json()
+            json(Json { encodeDefaults = true })
         }
     }

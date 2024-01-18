@@ -1,5 +1,8 @@
 package de.nielsfalk.formdsl
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Form(
     val name: String
 )
