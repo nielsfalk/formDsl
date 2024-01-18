@@ -1,0 +1,43 @@
+@startuml
+title Show Form List
+
+actor       User   as User
+participant App    as App
+database    AppDb  as AppDb
+participant Server as Server
+
+User -> App: open FormsList
+App -> Server: Get /forms
+Server -> App: available forms (id, name, version)
+App -> AppDb: existing form data ids
+AppDb -> App
+App -> User: Show formList (list items show if data exists)
+
+newpage Open Form Data
+User -> App: Select Form
+alt Form Data exists on device
+    App -> User: Ask if continue edit or new data
+    User -> App
+end
+alt Form Data exists on device AND continue edit
+    App -> Server: GET /forms/{formId}/{dataId}
+    Server -> App
+else else
+    App -> Server: GET /forms/{formId}
+    Server -> App
+end
+App -> User: Show Form
+
+newpage Edit Form Data
+User -> App: Change Data
+alt dataId is not null
+    App -> Server: POST /forms/{formId}/
+    Server -> App: 201 Location /forms/{formId}/{dataId} Json-FormData
+    App -> AppDb: Save dataId
+    AppDb -> App
+else else
+    App -> Server: PUT /forms/{formId}/{dataId}
+    Server -> App
+end
+App -> User
+@enduml
