@@ -4,6 +4,7 @@ import de.nielsfalk.form_dsl.server.plugins.AllFormsResponse
 import de.nielsfalk.form_dsl.server.plugins.configureRouting
 import de.nielsfalk.form_dsl.server.plugins.configureSerialization
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.contain
 import io.kotest.matchers.collections.containOnly
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -27,7 +28,7 @@ class GetAllFormsTest : StringSpec({
                 .get("/forms").apply {
 
                     status shouldBe OK
-                    body<AllFormsResponse>().forms should containOnly("foo", "bar")
+                    body<AllFormsResponse>().forms should contain("a noodle survey")
                 }
         }
     }

@@ -40,13 +40,13 @@ class JsonTest : FreeSpec({
         }
 
 
-        "decode via discriminator" {
-            val jsonString = """[{"type":"One"},{"type":"Two"}]"""
+            "decode via discriminator" {
+                val jsonString = """[{"type":"One"},{"type":"Two"}]"""
 
-            val decodedFoo = json.decodeFromString<List<JsonDiscriminatorTestBase>>(jsonString)
+                val decodedFoo = json.decodeFromString<List<JsonDiscriminatorTestBase>>(jsonString)
 
-            decodedFoo shouldBe listOf(JsonDiscriminatorTestBase.AnImpl(), JsonDiscriminatorTestBase.AnotherImpl())
-        }
+                decodedFoo shouldBe listOf(JsonDiscriminatorTestBase.AnImpl(), JsonDiscriminatorTestBase.AnotherImpl())
+            }
     }
 })
 
