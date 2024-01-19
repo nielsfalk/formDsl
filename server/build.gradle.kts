@@ -8,7 +8,7 @@ plugins {
 group = "de.nielsfalk.form_dsl"
 version = "1.0.0"
 application {
-    mainClass.set("de.nielsfalk.form_dsl.ApplicationKt")
+    mainClass.set("de.nielsfalk.form_dsl.server.ApplicationKt")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=${extra["development"] ?: "false"}")
 }
 
