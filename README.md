@@ -6,9 +6,11 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Desktop, Server.
 
 ## Run the App
 
- - Run Jvm Tests
-   - `./gradlew :shared:jvmTest :composeApp:desktopTest :server:test`
- - Run Server
+ - Run jvm tests
+   - `./gradlew :shared:jvmTest :composeApp:desktopTest :server:test `
+ - Run ios tests
+   - `./gradlew :composeApp:cleanIosX64Test :composeApp:iosX64Test :shared:cleanIosX64Test :shared:iosX64Test`
+ - Run server
    - `./gradlew :server:run`
- - Run Desktop App
-   - `./gradlew :composeApp:run`
+ - Run desktop App
+   - `./gradlew :composeApp:desktopRun -DmainClass=MainKt --quiet`
