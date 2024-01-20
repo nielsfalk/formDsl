@@ -24,6 +24,8 @@ dependencies {
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.default.headers)
     implementation(libs.ktor.server.auto.head.response)
+    implementation(libs.mongodb.driver.kotlin.coroutine)
+    implementation(libs.mongodb.bson.kotlinx )
 
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.framework.engine)

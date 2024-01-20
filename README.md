@@ -6,8 +6,11 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Desktop, Server.
 
 ## Run the App
 
+ - Run the DB
+   - install mongo [install-mongodb-on-os-x](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/)
+   - start service `brew services start mongodb-community`
  - Run jvm tests
-   - `./gradlew :shared:jvmTest :composeApp:desktopTest :server:test `
+   - `./gradlew :shared:clean :shared:jvmTest :composeApp:clean :composeApp:desktopTest :server:clean :server:test `
  - Run ios tests
    - `./gradlew :composeApp:cleanIosX64Test :composeApp:iosX64Test :shared:cleanIosX64Test :shared:iosX64Test`
  - Run server
