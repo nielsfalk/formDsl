@@ -14,7 +14,7 @@ class FormsRepository : Closeable {
     }
 
     suspend fun getAvailableForms(): List<String> =
-        client.get("http://localhost:8080/forms").body<AllFormsResponse>().forms
+        client.get("http://${localhost()}/forms").body<AllFormsResponse>().forms
 }
 
 @Serializable

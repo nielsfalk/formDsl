@@ -12,3 +12,5 @@ actual fun createClient(): HttpClient =
             json(Json { encodeDefaults = true })
         }
     }
+
+actual fun localhost(): String = "localhost:8080"
