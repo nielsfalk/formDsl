@@ -21,7 +21,7 @@ import kotlinx.serialization.Serializable
 import org.bson.types.ObjectId
 
 fun Application.configureRouting(
-    database: MongoDatabase = MongoClient.create().getDatabase("test"),
+    database: MongoDatabase = MongoClient.create().getDatabase("formDsl"),
     collection: MongoCollection<FormDataEntity> = database.lazyGetCollection<FormDataEntity>("formData")
 ) {
 
