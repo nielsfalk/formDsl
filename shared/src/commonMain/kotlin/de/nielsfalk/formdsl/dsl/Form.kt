@@ -1,11 +1,13 @@
 package de.nielsfalk.formdsl.dsl
 
-import de.nielsfalk.formdsl.dsl.Element.*
+import de.nielsfalk.formdsl.dsl.Element.Label
+import de.nielsfalk.formdsl.dsl.Element.SelectMulti
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Form(
+    val id: String,
     val title: String,
     val sections: List<Section>
 )
@@ -22,6 +24,7 @@ sealed class ElementsBuilder {
 }
 
 class FormBuilder : ElementsBuilder() {
+    var id: String? = null
     var title: String = ""
     var sections: List<Section> = emptyList()
 
@@ -30,24 +33,29 @@ class FormBuilder : ElementsBuilder() {
     }
 
     fun build(): Form {
-        if (elements.isNotEmpty()){
+        if (elements.isNotEmpty()) {
             //add default section for root elements
             sections = listOf(Section(elements)) + sections
         }
-        return Form(title, sections)
+        return Form(
+            id ?: throw IllegalArgumentException("id is required for form $title"),
+            title,
+            sections
+        )
     }
 }
 
 @Serializable
 data class Section(
-    val elements:List<Element>
+    val elements: List<Element>
 )
+
 class SectionBuilder : ElementsBuilder() {
     fun build() = Section(elements)
 }
 
 @Serializable
-sealed interface Element{
+sealed interface Element {
     @SerialName("Label")
     @Serializable
     data class Label(val content: String) : Element
@@ -65,7 +73,6 @@ sealed interface Element{
     @Serializable
     data class SelectMulti(override val options: List<SelectOption>) : SelectElement
 }
-
 
 
 class SelectBuilder() {
