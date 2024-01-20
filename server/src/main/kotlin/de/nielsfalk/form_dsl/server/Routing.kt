@@ -1,4 +1,4 @@
-package de.nielsfalk.form_dsl.server.plugins
+package de.nielsfalk.form_dsl.server
 
 import Greeting
 import de.nielsfalk.formdsl.forms.allForms
@@ -17,10 +17,17 @@ fun Application.configureRouting() {
         get("/forms") {
             call.respond(AllFormsResponse(allForms.map { it.title }))
         }
+        get("/forms/{id}") {
+            val id = call.parameters["id"]
+            val form = allForms.firstOrNull{ it.id.hexString == id }
+            form?.let {
+                call.respond(it)
+            }
+        }
     }
 }
 
 @Serializable
 data class AllFormsResponse(
-    val forms:List<String>
+    val forms: List<String>
 )

@@ -1,8 +1,9 @@
 package de.nielsfalk.form_dsl.server
 
-import de.nielsfalk.form_dsl.server.plugins.AllFormsResponse
-import de.nielsfalk.form_dsl.server.plugins.configureRouting
 import de.nielsfalk.form_dsl.server.plugins.configureSerialization
+import de.nielsfalk.formdsl.dsl.Form
+import de.nielsfalk.formdsl.forms.allForms
+import de.nielsfalk.formdsl.forms.noodleId
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.contain
 import io.kotest.matchers.should
@@ -15,7 +16,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
 import kotlinx.serialization.json.Json
 
-class GetAllFormsTest : StringSpec({
+class RoutingKtTest : StringSpec({
     "GET /forms" {
         testApplication {
             application {
@@ -29,6 +30,21 @@ class GetAllFormsTest : StringSpec({
                     status shouldBe OK
                     body<AllFormsResponse>().forms should contain("a noodle survey")
                 }
+        }
+    }
+    "GET /form/{id}" {
+        testApplication {
+            application {
+                configureSerialization()
+                configureRouting()
+            }
+            val id = noodleId
+
+            httpClient().get("/forms/$id").apply {
+
+                status shouldBe OK
+                body<Form>() shouldBe allForms.first { it.id.hexString == id }
+            }
         }
     }
 })
