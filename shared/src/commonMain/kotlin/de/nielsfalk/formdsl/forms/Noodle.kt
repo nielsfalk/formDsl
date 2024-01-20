@@ -20,5 +20,11 @@ fun noodle() =
                 option("foo", "foo")
                 option("bar", "bar")
             }
+
+            selectOne {
+                description="please select a One"
+                option("foo", "foo")
+                option("bar", "bar")
+            }
         }
     }

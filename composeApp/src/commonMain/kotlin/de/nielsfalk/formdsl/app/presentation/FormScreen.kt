@@ -29,18 +29,12 @@ internal fun FormScreen(
                 }
             )
         },
-        content = { paddingValues ->
+        content = {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                item {
-                    Text(
-                        text = selected.form.title,
-                    )
-                }
-
                 items(selected.form.sections.flatMap { it.elements }) { element ->
                     FormElement(element, selected.data.values, onEvent)
                 }
