@@ -13,6 +13,7 @@ class FormTest:FreeSpec({
 
     "serialize form"{
         val form = form {
+            id = "65ad3b7099fcc259a59a4f58"
             title = "a noodle survey"
             section {
                 label("select a date")
@@ -28,6 +29,7 @@ class FormTest:FreeSpec({
         //language=JSON
         serializedForm shouldBe """
             {
+                "id": "65ad3b7099fcc259a59a4f58",
                 "title": "a noodle survey",
                 "sections": [
                     {

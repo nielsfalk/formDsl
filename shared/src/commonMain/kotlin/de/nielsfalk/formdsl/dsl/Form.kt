@@ -1,5 +1,6 @@
 package de.nielsfalk.formdsl.dsl
 
+import de.nielsfalk.bson.util.ObjectId
 import de.nielsfalk.formdsl.dsl.Element.Label
 import de.nielsfalk.formdsl.dsl.Element.SelectMulti
 import kotlinx.serialization.SerialName
@@ -7,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Form(
-    val id: String,
+    val id: ObjectId,
     val title: String,
     val sections: List<Section>
 )
@@ -38,7 +39,7 @@ class FormBuilder : ElementsBuilder() {
             sections = listOf(Section(elements)) + sections
         }
         return Form(
-            id ?: throw IllegalArgumentException("id is required for form $title"),
+            ObjectId(id ?: throw IllegalArgumentException("id is required for form $title")),
             title,
             sections
         )
