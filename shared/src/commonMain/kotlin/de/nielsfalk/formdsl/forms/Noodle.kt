@@ -17,7 +17,3 @@ fun noodle() =
             }
         }
     }
-
-fun main() {
-    println("noodle() = ${noodle()}")
-}
