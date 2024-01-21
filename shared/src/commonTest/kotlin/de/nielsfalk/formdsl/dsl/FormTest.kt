@@ -40,6 +40,7 @@ class FormTest:FreeSpec({
                             },
                             {
                                 "type": "SelectMulti",
+                                "id": "selectMulti0",
                                 "options": [
                                     {
                                         "label": {
