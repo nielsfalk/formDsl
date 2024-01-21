@@ -7,10 +7,10 @@ import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import de.nielsfalk.form_dsl.server.db.*
-import de.nielsfalk.formdsl.dsl.FormData
 import de.nielsfalk.formdsl.forms.allForms
-import de.nielsfalk.formdsl.list.FormsList
-import de.nielsfalk.formdsl.list.FormsListItem
+import de.nielsfalk.formdsl.misc.FormData
+import de.nielsfalk.formdsl.misc.FormsList
+import de.nielsfalk.formdsl.misc.FormsListItem
 import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.server.application.*

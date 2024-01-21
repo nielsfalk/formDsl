@@ -1,4 +1,4 @@
-package de.nielsfalk.formdsl.list
+package de.nielsfalk.formdsl.misc
 
 import kotlinx.serialization.Serializable
 

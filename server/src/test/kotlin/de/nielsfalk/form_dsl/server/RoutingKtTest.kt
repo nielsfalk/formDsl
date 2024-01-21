@@ -8,11 +8,11 @@ import de.nielsfalk.form_dsl.server.db.findById
 import de.nielsfalk.form_dsl.server.db.lazyGetCollection
 import de.nielsfalk.form_dsl.server.plugins.configureSerialization
 import de.nielsfalk.formdsl.dsl.Form
-import de.nielsfalk.formdsl.dsl.FormData
-import de.nielsfalk.formdsl.dsl.FormDataValue
 import de.nielsfalk.formdsl.forms.allForms
 import de.nielsfalk.formdsl.forms.noodleId
-import de.nielsfalk.formdsl.list.FormsList
+import de.nielsfalk.formdsl.misc.FormData
+import de.nielsfalk.formdsl.misc.FormDataValue.StringValue
+import de.nielsfalk.formdsl.misc.FormsList
 import io.kotest.core.Tag
 import io.kotest.core.extensions.TestCaseExtension
 import io.kotest.core.spec.style.FreeSpec
@@ -55,7 +55,7 @@ class RoutingKtTest : FreeSpec({
         }
     }
 
-    val formData = FormData(values = mapOf("foo" to FormDataValue(string = "bar")))
+    val formData = FormData(values = mapOf("foo" to StringValue(value = "bar")))
     var formDataId: String? = null
 
     "POST /forms/{formId}/data".withTestApp {
@@ -85,7 +85,7 @@ class RoutingKtTest : FreeSpec({
     }
 
     "PUT /forms/{formId}/data/{formDataId}".withTestApp {
-        val updateData = formData.copy(values = mapOf("foo" to FormDataValue("buzz")))
+        val updateData = formData.copy(values = mapOf("foo" to StringValue("buzz")))
 
         client.put("/forms/$noodleId/data/$formDataId") {
             setBody(updateData)
@@ -97,14 +97,14 @@ class RoutingKtTest : FreeSpec({
             collection.findById(ObjectId(formDataId!!)) shouldBe FormDataEntity(
                 id = ObjectId(formDataId),
                 formId = ObjectId(noodleId),
-                values = mapOf("foo" to FormDataValue("buzz")),
+                values = mapOf("foo" to StringValue("buzz")),
                 version = 1
             )
         }
     }
 
     "PUT /forms/{formId}/data/{formDataId} outdated".withTestApp {
-        val updateData = formData.copy(values = mapOf("foo" to FormDataValue("outdated")))
+        val updateData = formData.copy(values = mapOf("foo" to StringValue("outdated")))
 
         client.put("/forms/$noodleId/data/$formDataId") {
             setBody(updateData)

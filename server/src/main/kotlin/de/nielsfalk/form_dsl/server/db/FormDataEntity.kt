@@ -1,7 +1,7 @@
 package de.nielsfalk.form_dsl.server.db
 
-import de.nielsfalk.formdsl.dsl.FormData
-import de.nielsfalk.formdsl.dsl.FormDataValue
+import de.nielsfalk.formdsl.misc.FormData
+import de.nielsfalk.formdsl.misc.FormDataValue
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
