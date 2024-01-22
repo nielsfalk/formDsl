@@ -52,10 +52,10 @@ class RoutingKtTest : FreeSpec({
         }
     }
 
-    var formDataId: String?
-    "POST /forms/{formId}/data".withTestApp {
-        val formData = FormData(mapOf("foo" to FormDataValue(string = "bar")))
+    val formData = FormData(mapOf("foo" to FormDataValue(string = "bar")))
+    var formDataId: String? = null
 
+    "POST /forms/{formId}/data".withTestApp {
         client.post("/forms/$noodleId/data") {
             setBody(formData)
             contentType(ContentType.Application.Json)
@@ -70,6 +70,14 @@ class RoutingKtTest : FreeSpec({
                 formId = ObjectId(noodleId),
                 values = formData.values
             )
+        }
+    }
+
+    "GET /forms/{formId}/data/{formDataId}".withTestApp {
+        client.get("/forms/$noodleId/data/$formDataId").apply {
+
+            status shouldBe OK
+            body<FormData>() shouldBe formData
         }
     }
 })
