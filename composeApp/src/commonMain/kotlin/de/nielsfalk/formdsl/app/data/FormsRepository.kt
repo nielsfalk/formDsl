@@ -1,5 +1,7 @@
 package de.nielsfalk.formdsl.app.data
 
+import de.nielsfalk.formdsl.misc.FormsList
+import de.nielsfalk.formdsl.misc.FormsListItem
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -13,11 +15,6 @@ class FormsRepository : Closeable {
         _client?.close()
     }
 
-    suspend fun getAvailableForms(): List<String> =
-        client.get("http://${localhost()}/forms").body<AllFormsResponse>().forms
+    suspend fun getAvailableForms(): List<FormsListItem> =
+        client.get("http://${localhost()}/forms").body<FormsList>().forms
 }
-
-@Serializable
-data class AllFormsResponse(
-    val forms: List<String>
-)

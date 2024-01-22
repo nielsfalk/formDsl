@@ -41,13 +41,13 @@ internal fun FormsListScreen(
                     contentPadding = PaddingValues(vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(state.availableForms) { contact ->
+                    items(state.availableForms) { form ->
                         FormsListItem(
-                            formName = contact,
+                            formName = form.title,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    onEvent(FormEvent.SelectForm(contact))
+                                    onEvent(FormEvent.SelectForm(form.id))
                                 }
                                 .padding(horizontal = 16.dp)
                         )
