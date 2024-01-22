@@ -1,7 +1,7 @@
 package de.nielsfalk.formdsl.app.presentation
 
-import de.nielsfalk.formdsl.app.presentation.FormEvent.ReloadForms
 import de.nielsfalk.formdsl.app.data.FormsRepository
+import de.nielsfalk.formdsl.app.presentation.FormEvent.ReloadForms
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,13 +17,30 @@ class FormsViewModel(
     init {
         loadAvailableForms()
     }
+
     fun onEvent(event: FormEvent) {
         when (event) {
             is ReloadForms -> {
                 loadAvailableForms()
             }
-            is FormEvent.SelectForm->{
-                println("event = ${event.name}")
+
+            is FormEvent.SelectForm -> {
+                _state.update { it.copy(loading = true) }
+                viewModelScope.launch {
+                    val form = repository.getForm(event.formId)
+                    _state.update {
+                        it.copy(
+                            selectedForm = form,
+                            loading = false
+                        )
+                    }
+                }
+            }
+
+            is FormEvent.DeselectForm -> {
+                _state.update {
+                    it.copy(selectedForm = null)
+                }
             }
         }
     }

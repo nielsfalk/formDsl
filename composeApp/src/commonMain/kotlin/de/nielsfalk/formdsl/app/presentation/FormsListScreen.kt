@@ -20,7 +20,7 @@ internal fun FormsListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "moko-mvvm") },
+                title = { Text(text = "Forms") },
                 navigationIcon = {
                     IconButton(onClick = { onEvent(FormEvent.ReloadForms) }) {
                         Icon(imageVector = Icons.Default.Refresh, contentDescription = null)

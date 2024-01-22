@@ -1,7 +1,8 @@
 package de.nielsfalk.formdsl.app.presentation
 
 sealed interface FormEvent{
-    object ReloadForms: FormEvent
+    data object ReloadForms: FormEvent
+    data object DeselectForm:FormEvent
 
-    data class SelectForm(val name:String): FormEvent
+    data class SelectForm(val formId:String): FormEvent
 }
