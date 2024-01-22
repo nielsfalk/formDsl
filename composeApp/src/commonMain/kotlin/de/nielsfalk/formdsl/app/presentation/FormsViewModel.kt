@@ -42,6 +42,9 @@ class FormsViewModel(
                     it.copy(selectedForm = null)
                 }
             }
+
+            is FormEvent.FormDataChange ->
+                println("_state = ${_state}")
         }
     }
 

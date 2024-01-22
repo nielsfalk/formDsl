@@ -44,7 +44,7 @@ internal fun FormsScreen(
                 }
 
                 items(form.sections.flatMap { it.elements }) { element ->
-                    FormElement(element)
+                    FormElement(element, onEvent)
                 }
             }
         }
