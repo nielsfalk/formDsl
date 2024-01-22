@@ -15,9 +15,9 @@ fun App() {
         )
         val state: FormsState by viewModel.state.collectAsState()
 
-        if (state.selectedForm  == null)
-            FormsListScreen(state, viewModel::onEvent)
-        else
-            FormsScreen(state, viewModel::onEvent)
+        state.selectedForm?.let {
+            FormsScreen(it, viewModel::onEvent)
+        }?:
+        FormsListScreen(state, viewModel::onEvent)
     }
 }
