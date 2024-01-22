@@ -9,6 +9,8 @@ import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import de.nielsfalk.form_dsl.server.db.*
 import de.nielsfalk.formdsl.dsl.FormData
 import de.nielsfalk.formdsl.forms.allForms
+import de.nielsfalk.formdsl.list.FormsList
+import de.nielsfalk.formdsl.list.FormsListItem
 import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.server.application.*
@@ -17,7 +19,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.serialization.Serializable
 import org.bson.types.ObjectId
 
 fun Application.configureRouting(
@@ -31,7 +32,15 @@ fun Application.configureRouting(
             call.respondText(Greeting().greet())
         }
         get("/forms") {
-            call.respond(AllFormsResponse(allForms.map { it.title }))
+            call.respond(
+                FormsList(
+                    allForms.map {
+                        FormsListItem(
+                            id = it.id.hexString,
+                            title = it.title
+                        )
+                    })
+            )
         }
         get("/forms/{formId}") {
             val id = call.parameters["formId"]
@@ -102,8 +111,3 @@ suspend fun <T : Any> MongoCollection<T>.findByIdAndFormId(id: ObjectId, formId:
             eq("formId", formId)
         )
     ).firstOrNull()
-
-@Serializable
-data class AllFormsResponse(
-    val forms: List<String>
-)

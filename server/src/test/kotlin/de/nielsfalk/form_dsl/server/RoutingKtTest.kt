@@ -12,6 +12,7 @@ import de.nielsfalk.formdsl.dsl.FormData
 import de.nielsfalk.formdsl.dsl.FormDataValue
 import de.nielsfalk.formdsl.forms.allForms
 import de.nielsfalk.formdsl.forms.noodleId
+import de.nielsfalk.formdsl.list.FormsList
 import io.kotest.core.Tag
 import io.kotest.core.extensions.TestCaseExtension
 import io.kotest.core.spec.style.FreeSpec
@@ -40,7 +41,7 @@ class RoutingKtTest : FreeSpec({
         client.get("/forms").apply {
 
             status shouldBe OK
-            body<AllFormsResponse>().forms should contain("a noodle survey")
+            body<FormsList>().forms.map { it.title } should contain("a noodle survey")
         }
     }
 
