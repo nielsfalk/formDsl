@@ -2,7 +2,9 @@ package de.nielsfalk.formdsl.app.presentation
 
 import de.nielsfalk.formdsl.app.data.FormsRepository
 import de.nielsfalk.formdsl.app.presentation.FormEvent.ReloadForms
+import de.nielsfalk.formdsl.misc.FormDataValue
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -30,7 +32,7 @@ class FormsViewModel(
                     val form = repository.getForm(event.formId)
                     _state.update {
                         it.copy(
-                            selectedForm = form,
+                            selectedForm = SelectedState(form),
                             loading = false
                         )
                     }
@@ -43,9 +45,35 @@ class FormsViewModel(
                 }
             }
 
-            is FormEvent.FormDataChange ->
-                println("_state = ${_state}")
+            is FormEvent.FormDataChange -> {
+                _state.value.selectedForm?.let { selectedForm ->
+                    val values = selectedForm.data.values +
+                            (event.element.id to FormDataValue.StringValue(event.value))
+                    _state.update { it.copy(values = values) }
+
+                    viewModelScope.launch {
+                        saveData()
+                    }
+                }
+            }
         }
+    }
+
+    private suspend fun saveData() {
+        while (_state.value.saving) {
+            delay(10)
+        }
+        _state.value.unsavedData?.let { unsaved ->
+            _state.update { it.saving() }
+            if (unsaved.dataId == null) {
+                val dataId = repository.create(unsaved.formId, unsaved.data)
+                _state.update { it.successfulCreated(unsaved, dataId) }
+            } else {
+                val updatedVersion = repository.update(unsaved.formId, unsaved.dataId, unsaved.data)
+                _state.update { it.successfulUpdated(unsaved, updatedVersion) }
+            }
+        }
+
     }
 
     private fun loadAvailableForms() {
@@ -66,4 +94,3 @@ class FormsViewModel(
         repository.close()
     }
 }
-

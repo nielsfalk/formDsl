@@ -12,17 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import de.nielsfalk.formdsl.app.presentation.components.FormElement
-import de.nielsfalk.formdsl.dsl.Form
 
 @Composable
 internal fun FormsScreen(
-    form: Form,
+    selected: SelectedState,
     onEvent: (FormEvent) -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = form.title) },
+                title = { Text(text = selected.form.title) },
                 navigationIcon = {
                     IconButton(onClick = { onEvent(FormEvent.DeselectForm) }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
@@ -31,7 +30,6 @@ internal fun FormsScreen(
             )
         },
         content = { paddingValues ->
-
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(vertical = 16.dp),
@@ -39,12 +37,12 @@ internal fun FormsScreen(
             ) {
                 item {
                     Text(
-                        text = form.title,
+                        text = selected.form.title,
                     )
                 }
 
-                items(form.sections.flatMap { it.elements }) { element ->
-                    FormElement(element, onEvent)
+                items(selected.form.sections.flatMap { it.elements }) { element ->
+                    FormElement(element, selected.data.values, onEvent)
                 }
             }
         }

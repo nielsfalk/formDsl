@@ -2,6 +2,7 @@ package de.nielsfalk.formdsl.misc
 
 import de.nielsfalk.formdsl.misc.FormDataValue.LongValue
 import de.nielsfalk.formdsl.misc.FormDataValue.StringValue
+import getPlatform
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.encodeToString
@@ -34,6 +35,7 @@ class FormDataTest : FreeSpec({
                         "value": 15
                     }
                 },
+                "platform": "${getPlatform().name}",
                 "version": 0
             }
         """.trimIndent()

@@ -76,6 +76,7 @@ sealed interface Element {
         val id: String
 
         @Serializable
+        @SerialName("TextInput")
         data class TextInput(
             override val id: String,
             val placeholder: String? = null
@@ -107,7 +108,7 @@ class TextInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
 
     fun build(): TextInput =
         TextInput(
-            this.id ?: listOfNotNull(idPrefix, nextId("selectMulti")).joinToString("-"),
+            this.id ?: listOfNotNull(idPrefix, nextId("testInput")).joinToString("-"),
             placehoder
         )
 }
@@ -131,22 +132,11 @@ abstract class InputBuilder(val idPrefix: String?) {
     var id: String? = null
 }
 
-val prefixedIdSequence: Map<String, Iterator<String>> = mutableMapOf<String, Iterator<String>>()
-    .withDefault { idPrefix ->
-        sequence {
-            var counter: ULong = 0UL
-            while (true) {
-                yield("$idPrefix$counter")
-                counter++
-            }
-        }.iterator()
-    }
-
 object IdSequences {
     operator fun get(idPrefix: String): Iterator<String> {
         return prefixedIdSequence.getOrPut(idPrefix) {
             sequence {
-                var counter: ULong = 0UL
+                var counter = 0UL
                 while (true) {
                     this.yield("$idPrefix$counter")
                     counter++
@@ -155,7 +145,7 @@ object IdSequences {
         }
     }
 
-    private val prefixedIdSequence: MutableMap<String, Iterator<String>> = mutableMapOf<String, Iterator<String>>()
+    private val prefixedIdSequence: MutableMap<String, Iterator<String>> = mutableMapOf()
 }
 
 fun nextId(idPrefix: String): String {

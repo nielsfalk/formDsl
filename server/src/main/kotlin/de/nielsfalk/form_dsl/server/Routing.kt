@@ -93,11 +93,13 @@ fun Application.configureRouting(
                 allForms.any { it.id.hexString == formId }
             ) {
                 val data = call.receive<FormData>()
-                val updateResult = collection.updateOne(ObjectId(formDataId), data.toEntity(formDataId, formId))
-                when (updateResult.modifiedCount) {
-                    0L -> call.respond(Conflict, "$formDataId is outdated")
-                    1L -> call.respond(data.copy(version = data.version + 1))
-                    else -> throw Exception("Only one entity was intended to update")
+                collection.findById(ObjectId(formDataId))?.let { oldEntity ->
+                    if (oldEntity.version == data.version) {
+                        val version = oldEntity.version + 1
+                        collection.updateOne(ObjectId(formDataId), data.toEntity(formDataId, formId).copy(version = version))
+                        call.respond(data.copy(version = version))
+                    } else
+                        call.respond(Conflict, "$formDataId is outdated")
                 }
             }
         }

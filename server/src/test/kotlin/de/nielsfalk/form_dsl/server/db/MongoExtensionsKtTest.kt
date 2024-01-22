@@ -8,7 +8,6 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.bson.codecs.kotlinx.ObjectIdSerializer
 import org.bson.types.ObjectId
 import kotlin.random.Random
 import kotlin.random.nextUInt
@@ -39,7 +38,7 @@ class MongoExtensionsKtTest : FreeSpec({
     }
 
     "updateOne" {
-        collection.updateOne(jediId, jedi.copy(age = 19))
+        collection.updateOneWithAutoVersion(jediId, jedi.copy(age = 19))
 
         collection.findById(jediId)!!.apply {
             age shouldBe 19
@@ -49,7 +48,7 @@ class MongoExtensionsKtTest : FreeSpec({
 
 
     "updateOutdated" {
-        val updateResult = collection.updateOne(jediId, jedi)
+        val updateResult = collection.updateOneWithAutoVersion(jediId, jedi)
 
         updateResult.modifiedCount shouldBe 0L
     }

@@ -30,7 +30,7 @@ internal fun FormsListScreen(
         },
         content = { paddingValues ->
 
-            if (state.loading) {
+            if (state.loading || state.saving) {
                 CircularProgressIndicator(
                     modifier = Modifier.width(64.dp),
                     color = MaterialTheme.colors.secondary

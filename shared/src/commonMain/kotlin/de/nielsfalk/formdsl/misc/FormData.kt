@@ -1,11 +1,13 @@
 package de.nielsfalk.formdsl.misc
 
+import getPlatform
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class FormData(
     val values: Map<String, FormDataValue>,
+    val platform: String = getPlatform().name,
     val version: Long = 0
 )
 

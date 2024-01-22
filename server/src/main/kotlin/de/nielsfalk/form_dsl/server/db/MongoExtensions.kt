@@ -9,8 +9,6 @@ import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
 import org.bson.BsonDocumentWrapper
 import org.bson.BsonValue
 import org.bson.conversions.Bson
@@ -32,10 +30,7 @@ inline fun <reified T : Any> MongoDatabase.lazyGetCollection(
 suspend fun <T : Any> MongoCollection<T>.findById(id: ObjectId) =
     find(eq("_id", id)).firstOrNull()
 
-@OptIn(ExperimentalSerializationApi::class)
-val bsonAwareJson = Json { serializersModule = org.bson.codecs.kotlinx.defaultSerializersModule }
-
-suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
+suspend inline fun <reified T : Any> MongoCollection<T>.updateOneWithAutoVersion(
     id: ObjectId,
     entity: T
 ): UpdateResult {
@@ -52,6 +47,16 @@ suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
             bsonUpdates + Updates.set("version", version + 1)
         )
     }
+}
+
+suspend inline fun <reified T : Any> MongoCollection<T>.updateOne(
+    id: ObjectId,
+    entity: T
+): UpdateResult {
+    val bsonUpdates: List<Bson> = BsonDocumentWrapper.asBsonDocument(entity, codecRegistry)
+        .filterKeys { it != "_id" }
+        .map { (key, value) -> Updates.set(key, value) }
+    return updateOne(eq("_id", id), bsonUpdates)
 }
 
 val BsonValue.objectId: ObjectId
