@@ -18,5 +18,7 @@ fun FormElement(element: Element) {
         is Element.Input.SelectInput.SelectOne -> Text(
             text = "select one",
         )
+
+        is Element.Input.TextInput -> TODO()
     }
 }

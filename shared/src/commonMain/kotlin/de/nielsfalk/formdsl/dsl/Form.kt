@@ -2,6 +2,7 @@ package de.nielsfalk.formdsl.dsl
 
 import de.nielsfalk.bson.util.ObjectId
 import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectMulti
+import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
 import de.nielsfalk.formdsl.dsl.Element.Label
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -17,11 +18,19 @@ sealed class ElementsBuilder {
     open var id: String? = null
     var elements: List<Element> = emptyList()
     fun selectMulti(function: SelectBuilder.() -> Unit) {
-        elements += SelectBuilder(idPrefix = if (this is FormBuilder) null else id).apply(function).buildMulti()
+        elements += SelectBuilder(idPrefix = if (this is FormBuilder) null else id)
+            .apply(function)
+            .buildMulti()
     }
 
     fun label(text: String) {
         elements += Label(text)
+    }
+
+    fun textInput(function: TextInputBuilder.() -> Unit){
+        elements += TextInputBuilder(idPrefix = if (this is FormBuilder) null else id)
+            .apply(function)
+            .build()
     }
 }
 
@@ -67,6 +76,12 @@ sealed interface Element {
         val id: String
 
         @Serializable
+        data class TextInput(
+            override val id: String,
+            val placeholder: String? = null
+        ) : Input
+
+        @Serializable
         sealed interface SelectInput : Input {
             val options: List<SelectOption>
 
@@ -87,8 +102,17 @@ sealed interface Element {
     }
 }
 
+class TextInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
+    var placehoder: String? = null
+
+    fun build(): TextInput =
+        TextInput(
+            this.id ?: listOfNotNull(idPrefix, nextId("selectMulti")).joinToString("-"),
+            placehoder
+        )
+}
+
 class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
-    var id: String? = null
     var options: List<SelectOption> = listOf()
 
     fun option(label: String, value: String) {
@@ -104,7 +128,7 @@ class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
 }
 
 abstract class InputBuilder(val idPrefix: String?) {
-
+    var id: String? = null
 }
 
 val prefixedIdSequence: Map<String, Iterator<String>> = mutableMapOf<String, Iterator<String>>()
@@ -130,6 +154,7 @@ object IdSequences {
             }.iterator()
         }
     }
+
     private val prefixedIdSequence: MutableMap<String, Iterator<String>> = mutableMapOf<String, Iterator<String>>()
 }
 

@@ -10,6 +10,9 @@ fun noodle() =
         id = noodleId
         title = "a noodle survey"
         section{
+            textInput {
+                placehoder = "Name"
+            }
             label("select a date")
             selectMulti{
                 option("foo","foo")
