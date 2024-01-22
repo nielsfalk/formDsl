@@ -6,11 +6,11 @@ import com.mongodb.client.model.Filters.eq
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
-import de.nielsfalk.form_dsl.server.db.FormDataEntity
-import de.nielsfalk.form_dsl.server.db.lazyGetCollection
+import de.nielsfalk.form_dsl.server.db.*
 import de.nielsfalk.formdsl.dsl.FormData
 import de.nielsfalk.formdsl.forms.allForms
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode.Companion.Conflict
+import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.server.application.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.request.*
@@ -55,7 +55,7 @@ fun Application.configureRouting(
                 )
                 insertOneResult.insertedId?.asObjectId()?.value?.let { id ->
                     call.response.header("Location", "/forms/$formId/data/$id")
-                    call.respond(HttpStatusCode.Created, data)
+                    call.respond(Created, data)
                 }
             }
         }
@@ -71,8 +71,24 @@ fun Application.configureRouting(
                     ObjectId(formDataId),
                     ObjectId(formId)
                 )?.let {
-                    FormData(values = it.values)
-                    call.respond(FormData(values = it.values))
+                    call.respond(it.toModel())
+                }
+            }
+        }
+        put("/forms/{formId}/data/{formDataId}") {
+            val formId = call.parameters["formId"]
+            val formDataId = call.parameters["formDataId"]
+            if (
+                ObjectId.isValid(formId) &&
+                ObjectId.isValid(formDataId) &&
+                allForms.any { it.id.hexString == formId }
+            ) {
+                val data = call.receive<FormData>()
+                val updateResult = collection.updateOne(ObjectId(formDataId), data.toEntity(formDataId, formId))
+                when (updateResult.modifiedCount) {
+                    0L -> call.respond(Conflict, "$formDataId is outdated")
+                    1L -> call.respond(data.copy(version = data.version + 1))
+                    else -> throw Exception("Only one entity was intended to update")
                 }
             }
         }

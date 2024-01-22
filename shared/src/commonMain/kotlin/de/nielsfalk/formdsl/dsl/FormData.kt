@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FormData(
+    val version: Long = 0,
     val values: Map<String, FormDataValue>
 )
 

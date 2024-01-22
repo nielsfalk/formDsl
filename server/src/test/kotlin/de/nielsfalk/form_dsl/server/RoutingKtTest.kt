@@ -27,6 +27,7 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
@@ -42,6 +43,7 @@ class RoutingKtTest : FreeSpec({
             body<AllFormsResponse>().forms should contain("a noodle survey")
         }
     }
+
     "GET /form/{id}".withTestApp {
         val id = noodleId
 
@@ -52,7 +54,7 @@ class RoutingKtTest : FreeSpec({
         }
     }
 
-    val formData = FormData(mapOf("foo" to FormDataValue(string = "bar")))
+    val formData = FormData(values = mapOf("foo" to FormDataValue(string = "bar")))
     var formDataId: String? = null
 
     "POST /forms/{formId}/data".withTestApp {
@@ -78,6 +80,38 @@ class RoutingKtTest : FreeSpec({
 
             status shouldBe OK
             body<FormData>() shouldBe formData
+        }
+    }
+
+    "PUT /forms/{formId}/data/{formDataId}".withTestApp {
+        val updateData = formData.copy(values = mapOf("foo" to FormDataValue("buzz")))
+
+        client.put("/forms/$noodleId/data/$formDataId") {
+            setBody(updateData)
+            contentType(ContentType.Application.Json)
+        }.apply {
+
+            status shouldBe OK
+            body<FormData>() shouldBe updateData.copy(version = 1)
+            collection.findById(ObjectId(formDataId!!)) shouldBe FormDataEntity(
+                id = ObjectId(formDataId),
+                formId = ObjectId(noodleId),
+                values = mapOf("foo" to FormDataValue("buzz")),
+                version = 1
+            )
+        }
+    }
+
+    "PUT /forms/{formId}/data/{formDataId} outdated".withTestApp {
+        val updateData = formData.copy(values = mapOf("foo" to FormDataValue("outdated")))
+
+        client.put("/forms/$noodleId/data/$formDataId") {
+            setBody(updateData)
+            contentType(ContentType.Application.Json)
+        }.apply {
+
+            status shouldBe Conflict
+            body<String>() shouldBe "$formDataId is outdated"
         }
     }
 })
