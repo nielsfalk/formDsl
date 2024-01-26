@@ -13,16 +13,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import de.nielsfalk.formdsl.app.presentation.FormEvent
 import de.nielsfalk.formdsl.dsl.Element
+import de.nielsfalk.formdsl.dsl.SelectOption
 import de.nielsfalk.formdsl.misc.FormDataValue
 
 @Composable
- fun SelectOne(element: Element.Input.SelectInput.SelectOne, dataValue: FormDataValue?, onEvent: (FormEvent) -> Unit) {
+fun SelectOne(element: Element.Input.SelectInput.SelectOne, dataValue: FormDataValue?, onEvent: (FormEvent) -> Unit) {
     element.options.forEach {
         Row(
             Modifier
                 .fillMaxWidth()
                 .selectable(
-                    selected = (dataValue as? FormDataValue.StringValue)?.value == it.value,
+                    selected = dataValue == it.value,
                     onClick = {
                         onEvent(FormEvent.FormDataChange(element, it.value))
                     }
@@ -30,7 +31,7 @@ import de.nielsfalk.formdsl.misc.FormDataValue
                 .padding(horizontal = 5.dp)
         ) {
             RadioButton(
-                selected = (dataValue as? FormDataValue.StringValue)?.value == it.value,
+                selected = dataValue == it.value,
                 onClick = {
                     onEvent(FormEvent.FormDataChange(element, it.value))
                 },
@@ -38,9 +39,12 @@ import de.nielsfalk.formdsl.misc.FormDataValue
 
             )
             Text(
-                text = it.label.content,
+                text = it.text,
                 modifier = Modifier.align(Alignment.CenterVertically).padding(5.dp)
             )
         }
     }
 }
+
+val SelectOption.text: String
+    get() = label?.content ?: value.toString()

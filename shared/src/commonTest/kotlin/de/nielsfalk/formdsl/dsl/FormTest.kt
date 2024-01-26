@@ -102,13 +102,19 @@ class FormTest : FreeSpec({
                                         "label": {
                                             "content": "foo"
                                         },
-                                        "value": "foo"
+                                        "value": {
+                                            "type": "String",
+                                            "value": "foo"
+                                        }
                                     },
                                     {
                                         "label": {
                                             "content": "bar"
                                         },
-                                        "value": "bar"
+                                        "value": {
+                                            "type": "String",
+                                            "value": "bar"
+                                        }
                                     }
                                 ],
                                 "description": "a selectMulti description"
@@ -121,13 +127,19 @@ class FormTest : FreeSpec({
                                         "label": {
                                             "content": "foo"
                                         },
-                                        "value": "foo"
+                                        "value": {
+                                            "type": "String",
+                                            "value": "foo"
+                                        }
                                     },
                                     {
                                         "label": {
                                             "content": "bar"
                                         },
-                                        "value": "bar"
+                                        "value": {
+                                            "type": "String",
+                                            "value": "bar"
+                                        }
                                     }
                                 ],
                                 "description": "a selectOne description"

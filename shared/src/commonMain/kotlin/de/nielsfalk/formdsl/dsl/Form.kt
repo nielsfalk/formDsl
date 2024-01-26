@@ -6,6 +6,8 @@ import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectMulti
 import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectOne
 import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
 import de.nielsfalk.formdsl.dsl.Element.Label
+import de.nielsfalk.formdsl.misc.FormDataValue
+import de.nielsfalk.formdsl.misc.FormDataValue.StringValue
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -160,7 +162,7 @@ class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
     var options: List<SelectOption> = listOf()
 
     fun option(label: String, value: String) {
-        options += SelectOption(Label(label), value)
+        options += SelectOption(Label(label), StringValue(value))
     }
 
     fun buildMulti(): SelectMulti {
@@ -214,7 +216,7 @@ fun generateNextId(idPrefix: String): String {
 }
 
 @Serializable
-data class SelectOption(val label: Label, val value: String)
+data class SelectOption(val label: Label?, val value: FormDataValue)
 
 fun form(function: FormBuilder.() -> Unit): Form =
     FormBuilder().apply(function).build()

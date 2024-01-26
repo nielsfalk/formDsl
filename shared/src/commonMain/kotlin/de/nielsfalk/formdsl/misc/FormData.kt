@@ -21,7 +21,7 @@ sealed interface FormDataValue {
 
     @SerialName("List")
     @Serializable
-    data class ListValue(val value: List<String>) : FormDataValue
+    data class ListValue(val value: List<FormDataValue>) : FormDataValue
 
     @SerialName("Long")
     @Serializable
@@ -32,10 +32,10 @@ sealed interface FormDataValue {
     data class BooleanValue(val value: Boolean) : FormDataValue
 }
 
-fun ListValue?.toggle(value: String): ListValue =
+fun ListValue?.toggle(value: FormDataValue): ListValue =
     set(value, this?.value?.contains(value) != true)
 
-fun ListValue?.set(value: String, add:Boolean): ListValue =
+fun ListValue?.set(value: FormDataValue, add:Boolean): ListValue =
     this?.copy(
         value = if (add)
             this.value + value

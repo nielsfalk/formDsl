@@ -44,7 +44,7 @@ fun SelectMulti(
                     .padding(start = 15.dp)
             )
             Text(
-                text = option.label.content,
+                text = option.text,
                 modifier = Modifier
                     .align(CenterVertically)
                     .padding(start = 25.dp, top = 5.dp, end = 5.dp, bottom = 5.dp)
