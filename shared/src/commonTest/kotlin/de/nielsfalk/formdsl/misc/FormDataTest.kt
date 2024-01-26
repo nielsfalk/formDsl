@@ -6,6 +6,8 @@ import de.nielsfalk.jsonUtil.defaultJson
 import getPlatform
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.datetime.toLocalDate
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -20,6 +22,14 @@ class FormDataTest : FreeSpec({
         mapOf(
             "foo" to StringValue("foo"),
             "bar" to LongValue(15),
+            "list" to FormDataValue.of(
+                listOf(
+                    3L, "fadf",
+                    "2020-08-31T17:43".toLocalDateTime(),
+                    "2020-08-31".toLocalDate(),
+                    null
+                )
+            )
         )
     )
 
@@ -34,6 +44,27 @@ class FormDataTest : FreeSpec({
                     "bar": {
                         "type": "Long",
                         "value": 15
+                    },
+                    "list": {
+                        "type": "List",
+                        "value": [
+                            {
+                                "type": "Long",
+                                "value": 3
+                            },
+                            {
+                                "type": "String",
+                                "value": "fadf"
+                            },
+                            {
+                                "type": "LocalDateTime",
+                                "value": "2020-08-31T17:43"
+                            },
+                            {
+                                "type": "LocalDate",
+                                "value": "2020-08-31"
+                            }
+                        ]
                     }
                 },
                 "platform": "${getPlatform().name}",

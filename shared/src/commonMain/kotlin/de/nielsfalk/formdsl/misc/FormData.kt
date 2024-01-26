@@ -1,6 +1,6 @@
 package de.nielsfalk.formdsl.misc
 
-import de.nielsfalk.formdsl.misc.FormDataValue.ListValue
+import de.nielsfalk.formdsl.misc.FormDataValue.*
 import getPlatform
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -16,7 +16,7 @@ data class FormData(
 
 @Serializable
 sealed interface FormDataValue {
-    val value:Any
+    val value: Any
 
     @SerialName("String")
     @Serializable
@@ -41,12 +41,25 @@ sealed interface FormDataValue {
     @SerialName("LocalDateTime")
     @Serializable
     data class LocalDateTimeValue(override val value: LocalDateTime) : FormDataValue
+    companion object
 }
+
+fun Companion.of(defaultValue: Any): FormDataValue =
+    when (defaultValue) {
+        is FormDataValue -> defaultValue
+        is String -> StringValue(defaultValue)
+        is Boolean -> BooleanValue(defaultValue)
+        is LocalDateTime -> LocalDateTimeValue(defaultValue)
+        is LocalDate -> LocalDateValue(defaultValue)
+        is Long -> LongValue(defaultValue)
+        is List<*> -> ListValue(defaultValue.mapNotNull { it?.let(Companion::of) })
+        else -> throw Exception("can't transform $defaultValue to FormDataValue?")
+    }
 
 fun ListValue?.toggle(value: FormDataValue): ListValue =
     set(value, this?.value?.contains(value) != true)
 
-fun ListValue?.set(value: FormDataValue, add:Boolean): ListValue =
+fun ListValue?.set(value: FormDataValue, add: Boolean): ListValue =
     this?.copy(
         value = if (add)
             this.value + value

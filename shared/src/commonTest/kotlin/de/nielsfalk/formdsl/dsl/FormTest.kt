@@ -3,6 +3,7 @@ package de.nielsfalk.formdsl.dsl
 import de.nielsfalk.jsonUtil.defaultJson
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.datetime.toLocalDate
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -35,14 +36,20 @@ class FormTest : FreeSpec({
                 id = "aSectionId"
                 selectMulti {
                     description = "a selectMulti description"
-                    option("foo", "foo")
-                    option("bar", "bar")
+                    option("foo")
+                    option("bar")
                 }
                 selectOne {
                     id = "aTextInputId"
+                    defaultValue = "foo"
                     description = "a selectOne description"
                     option("foo", "foo")
                     option("bar", "bar")
+                }
+                selectMulti {
+                    defaultValue = "2020-08-31".toLocalDate()
+                    option("2020-08-30".toLocalDate())
+                    option("2020-08-31".toLocalDate())
                 }
             }
         }
@@ -97,18 +104,12 @@ class FormTest : FreeSpec({
                                 "id": "aSectionId-selectMulti0",
                                 "options": [
                                     {
-                                        "label": {
-                                            "content": "foo"
-                                        },
                                         "value": {
                                             "type": "String",
                                             "value": "foo"
                                         }
                                     },
                                     {
-                                        "label": {
-                                            "content": "bar"
-                                        },
                                         "value": {
                                             "type": "String",
                                             "value": "bar"
@@ -140,7 +141,37 @@ class FormTest : FreeSpec({
                                         }
                                     }
                                 ],
-                                "description": "a selectOne description"
+                                "description": "a selectOne description",
+                                "defaultValue": {
+                                    "type": "String",
+                                    "value": "foo"
+                                }
+                            },
+                            {
+                                "type": "SelectMulti",
+                                "id": "aSectionId-selectMulti1",
+                                "options": [
+                                    {
+                                        "value": {
+                                            "type": "LocalDate",
+                                            "value": "2020-08-30"
+                                        }
+                                    },
+                                    {
+                                        "value": {
+                                            "type": "LocalDate",
+                                            "value": "2020-08-31"
+                                        }
+                                    }
+                                ],
+                                "defaultValue": {
+                                    "value": [
+                                        {
+                                            "type": "LocalDate",
+                                            "value": "2020-08-31"
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     }

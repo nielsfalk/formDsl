@@ -8,6 +8,7 @@ import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
 import de.nielsfalk.formdsl.dsl.Element.Label
 import de.nielsfalk.formdsl.misc.FormDataValue
 import de.nielsfalk.formdsl.misc.FormDataValue.*
+import de.nielsfalk.formdsl.misc.of
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
@@ -102,20 +103,23 @@ sealed interface Element {
     sealed interface Input : Element {
         val id: String
         val description: String?
+        val defaultValue: FormDataValue?
 
         @Serializable
         @SerialName("TextInput")
         data class TextInput(
             override val id: String,
             override val description: String?,
-            val placeholder: String?
+            val placeholder: String?,
+            override val defaultValue: StringValue?
         ) : Input
 
         @Serializable
         @SerialName("BooleanInput")
         data class BooleanInput(
             override val id: String,
-            override val description: String?
+            override val description: String?,
+            override val defaultValue: BooleanValue?
         ) : Input
 
         @Serializable
@@ -127,7 +131,8 @@ sealed interface Element {
             data class SelectOne(
                 override val id: String,
                 override val options: List<SelectOption>,
-                override val description: String?
+                override val description: String?,
+                override val defaultValue: FormDataValue?
             ) : SelectInput
 
             @SerialName("SelectMulti")
@@ -135,7 +140,8 @@ sealed interface Element {
             data class SelectMulti(
                 override val id: String,
                 override val options: List<SelectOption>,
-                override val description: String?
+                override val description: String?,
+                override val defaultValue: ListValue?
             ) : SelectInput
         }
     }
@@ -143,34 +149,41 @@ sealed interface Element {
 
 class TextInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
     var placehoder: String? = null
+    var defaultValue: String? = null
 
     fun build(): TextInput =
         TextInput(
             nextId("textInput"),
             description,
-            placehoder
+            placehoder,
+            defaultValue?.let(::StringValue)
         )
 }
 
 class BooleanInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
+    var defaultValue: Boolean? = null
+
     fun build(): BooleanInput =
         BooleanInput(
             nextId("textInput"),
-            description
+            description,
+            defaultValue?.let(::BooleanValue)
         )
 }
 
 class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
-    var options: List<SelectOption> = listOf()
+    var defaultValue: Any? = null
+    private var options: List<SelectOption> = listOf()
 
-    fun option(label: String, value: String) {
-        options += SelectOption(Label(label), StringValue(value))
+    fun option(value: String, label: String? = null) {
+        options += SelectOption(label?.let(::Label), StringValue(value))
     }
 
-    fun option(value:LocalDateTime){
+    fun option(value: LocalDateTime) {
         options += SelectOption(null, LocalDateTimeValue(value))
     }
-    fun option(value:LocalDate){
+
+    fun option(value: LocalDate) {
         options += SelectOption(null, LocalDateValue(value))
     }
 
@@ -178,7 +191,12 @@ class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
         return SelectMulti(
             nextId("selectMulti"),
             options,
-            description
+            description,
+            defaultValue?.let(Companion::of)
+                ?.let {
+                    if (it is ListValue) it
+                    else ListValue(listOf(it))
+                }
         )
     }
 
@@ -186,7 +204,8 @@ class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
         return SelectOne(
             nextId("selectOne"),
             options,
-            description
+            description,
+            defaultValue?.let(Companion::of)
         )
     }
 }

@@ -19,14 +19,14 @@ fun noodle() =
             label("a date")
             selectMulti {
                 description = "please select a date"
-                option("foo", "foo")
-                option("bar", "bar")
+                option("foo")
+                option("bar")
             }
 
             selectOne {
                 description = "please select a One"
-                option("foo", "foo")
-                option("bar", "bar")
+                option("foo")
+                option("bar")
             }
 
             selectOne {
