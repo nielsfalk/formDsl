@@ -5,11 +5,17 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import de.nielsfalk.formdsl.app.presentation.FormEvent
 import de.nielsfalk.formdsl.dsl.Element
+import de.nielsfalk.formdsl.dsl.Element.Input.BooleanInput
 import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
 import de.nielsfalk.formdsl.misc.FormDataValue
 
 @Composable
- fun InputElement(element: Element.Input, dataValue: FormDataValue?, onEvent: (FormEvent) -> Unit) {
+fun InputElement(element: Element.Input, dataValue: FormDataValue?, onEvent: (FormEvent) -> Unit) {
+    if (!(element is BooleanInput)) {
+         element.description?.let {
+             Text(text = it,)
+         }
+    }
     when (element) {
         is Element.Input.SelectInput.SelectMulti -> Text(
             text = "select multi",
@@ -25,7 +31,7 @@ import de.nielsfalk.formdsl.misc.FormDataValue
             onValueChange = { onEvent(FormEvent.FormDataChange(element, it)) }
         )
 
-        is Element.Input.BooleanInput -> Text(
+        is BooleanInput -> Text(
             text = "boolean input",
         )
     }

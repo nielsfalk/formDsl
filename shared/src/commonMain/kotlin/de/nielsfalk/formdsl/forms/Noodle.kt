@@ -9,14 +9,16 @@ fun noodle() =
     form {
         id = noodleId
         title = "a noodle survey"
-        section{
+        section {
             textInput {
+                description = "Please enter your name"
                 placehoder = "Name"
             }
-            label("select a date")
-            selectMulti{
-                option("foo","foo")
-                option("bar","bar")
+            label("a date")
+            selectMulti {
+                description="please select a date"
+                option("foo", "foo")
+                option("bar", "bar")
             }
         }
     }
