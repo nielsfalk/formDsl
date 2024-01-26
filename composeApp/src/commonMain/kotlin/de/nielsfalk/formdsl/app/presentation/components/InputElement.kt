@@ -14,11 +14,15 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import de.nielsfalk.formdsl.app.presentation.FormEvent
+import de.nielsfalk.formdsl.app.presentation.FormEvent.FormDataChange
 import de.nielsfalk.formdsl.dsl.Element
 import de.nielsfalk.formdsl.dsl.Element.Input.BooleanInput
+import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectMulti
 import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectOne
 import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
 import de.nielsfalk.formdsl.misc.FormDataValue
+import de.nielsfalk.formdsl.misc.set
+import de.nielsfalk.formdsl.misc.toggle
 
 @Composable
 fun InputElement(element: Element.Input, dataValue: FormDataValue?, onEvent: (FormEvent) -> Unit) {
@@ -28,9 +32,30 @@ fun InputElement(element: Element.Input, dataValue: FormDataValue?, onEvent: (Fo
         }
     }
     when (element) {
-        is Element.Input.SelectInput.SelectMulti -> Text(
-            text = "select multi",
-        )
+        is SelectMulti ->
+            element.options.forEach { option ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (dataValue as? FormDataValue.ListValue)?.value?.contains(option.value) == true,
+                            onClick = {
+                                onEvent(FormDataChange(element, (dataValue as? FormDataValue.ListValue).toggle(option.value)))
+                            }
+                        )
+                        .padding(horizontal = 5.dp)
+                ) {
+                    Switch(
+                        checked = (dataValue as? FormDataValue.ListValue)?.value?.contains(option.value) == true,
+                        onCheckedChange = { onEvent(FormDataChange(element, (dataValue as? FormDataValue.ListValue).set(option.value, it))) },
+                        modifier = Modifier.align(CenterVertically).size(21.dp).padding(start = 15.dp)
+                    )
+                    Text(
+                        text = option.label.content,
+                        modifier = Modifier.align(CenterVertically).padding(start = 25.dp, top = 5.dp, end = 5.dp, bottom = 5.dp)
+                    )
+                }
+            }
 
         is SelectOne -> {
             element.options.forEach {
@@ -40,7 +65,7 @@ fun InputElement(element: Element.Input, dataValue: FormDataValue?, onEvent: (Fo
                         .selectable(
                             selected = (dataValue as? FormDataValue.StringValue)?.value == it.value,
                             onClick = {
-                                onEvent(FormEvent.FormDataChange(element, it.value))
+                                onEvent(FormDataChange(element, it.value))
                             }
                         )
                         .padding(horizontal = 5.dp)
@@ -48,7 +73,7 @@ fun InputElement(element: Element.Input, dataValue: FormDataValue?, onEvent: (Fo
                     RadioButton(
                         selected = (dataValue as? FormDataValue.StringValue)?.value == it.value,
                         onClick = {
-                            onEvent(FormEvent.FormDataChange(element, it.value))
+                            onEvent(FormDataChange(element, it.value))
                         },
                         modifier = Modifier.align(CenterVertically).size(21.dp)
 
@@ -64,7 +89,7 @@ fun InputElement(element: Element.Input, dataValue: FormDataValue?, onEvent: (Fo
         is TextInput -> TextField(
             placeholder = element.placeholder?.let { { Text(text = it) } },
             value = (dataValue as? FormDataValue.StringValue)?.value ?: "",
-            onValueChange = { onEvent(FormEvent.FormDataChange(element, it)) }
+            onValueChange = { onEvent(FormDataChange(element, it)) }
         )
 
         is BooleanInput -> {
@@ -73,13 +98,13 @@ fun InputElement(element: Element.Input, dataValue: FormDataValue?, onEvent: (Fo
                     .fillMaxWidth()
                     .selectable(
                         selected = (dataValue as? FormDataValue.BooleanValue)?.value == true,
-                        onClick = { onEvent(FormEvent.FormDataChange(element, (dataValue as? FormDataValue.BooleanValue)?.value != true)) }
+                        onClick = { onEvent(FormDataChange(element, (dataValue as? FormDataValue.BooleanValue)?.value != true)) }
                     )
                     .padding(horizontal = 5.dp)
             ) {
                 Switch(
                     checked = (dataValue as? FormDataValue.BooleanValue)?.value == true,
-                    onCheckedChange = { onEvent(FormEvent.FormDataChange(element, it)) },
+                    onCheckedChange = { onEvent(FormDataChange(element, it)) },
                     modifier = Modifier.align(CenterVertically).size(21.dp).padding(start = 15.dp)
                 )
                 Text(
