@@ -1,6 +1,7 @@
 package de.nielsfalk.formdsl.dsl
 
 import de.nielsfalk.bson.util.ObjectId
+import de.nielsfalk.formdsl.dsl.Element.Input.BooleanInput
 import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectMulti
 import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectOne
 import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
@@ -39,6 +40,12 @@ sealed class ElementsBuilder {
 
     fun textInput(function: TextInputBuilder.() -> Unit) {
         elements += TextInputBuilder(idPrefix)
+            .apply(function)
+            .build()
+    }
+
+    fun booleanInput(function: BooleanInputBuilder.() -> Unit = {}) {
+        elements += BooleanInputBuilder(idPrefix)
             .apply(function)
             .build()
     }
@@ -101,6 +108,13 @@ sealed interface Element {
         ) : Input
 
         @Serializable
+        @SerialName("BooleanInput")
+        data class BooleanInput(
+            override val id: String,
+            override val description: String?
+        ) : Input
+
+        @Serializable
         sealed interface SelectInput : Input {
             val options: List<SelectOption>
 
@@ -131,6 +145,14 @@ class TextInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
             nextId("textInput"),
             description,
             placehoder
+        )
+}
+
+class BooleanInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
+    fun build(): BooleanInput =
+        BooleanInput(
+            nextId("textInput"),
+            description
         )
 }
 

@@ -24,5 +24,9 @@ import de.nielsfalk.formdsl.misc.FormDataValue
             value = (dataValue as? FormDataValue.StringValue)?.value ?: "",
             onValueChange = { onEvent(FormEvent.FormDataChange(element, it)) }
         )
+
+        is Element.Input.BooleanInput -> Text(
+            text = "boolean input",
+        )
     }
 }

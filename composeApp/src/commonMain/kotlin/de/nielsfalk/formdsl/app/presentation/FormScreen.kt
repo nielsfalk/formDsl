@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import de.nielsfalk.formdsl.app.presentation.components.FormElement
 
 @Composable
-internal fun FormsScreen(
+internal fun FormScreen(
     selected: SelectedState,
     onEvent: (FormEvent) -> Unit
 ) {

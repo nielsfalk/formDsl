@@ -21,6 +21,7 @@ class FormTest : FreeSpec({
             textInput {
                 description = "anotherRootElementWithNextGeneratedId"
             }
+            booleanInput { }
             section {
                 label("select a date")
                 textInput {
@@ -29,15 +30,15 @@ class FormTest : FreeSpec({
                 }
 
             }
-            section{
-                id="aSectionId"
+            section {
+                id = "aSectionId"
                 selectMulti {
                     description = "a selectMulti description"
                     option("foo", "foo")
                     option("bar", "bar")
                 }
                 selectOne {
-                    id="aTextInputId"
+                    id = "aTextInputId"
                     description = "a selectOne description"
                     option("foo", "foo")
                     option("bar", "bar")
@@ -67,6 +68,11 @@ class FormTest : FreeSpec({
                                 "id": "textInput1",
                                 "description": "anotherRootElementWithNextGeneratedId",
                                 "placeholder": null
+                            },
+                            {
+                                "type": "BooleanInput",
+                                "id": "textInput2",
+                                "description": null
                             }
                         ]
                     },
