@@ -1,6 +1,8 @@
 package de.nielsfalk.formdsl.forms
 
 import de.nielsfalk.formdsl.dsl.form
+import kotlinx.datetime.toLocalDate
+import kotlinx.datetime.toLocalDateTime
 
 const val noodleId = "65ac53ce21c4be2b23f14ed6"
 
@@ -16,18 +18,30 @@ fun noodle() =
             }
             label("a date")
             selectMulti {
-                description="please select a date"
+                description = "please select a date"
                 option("foo", "foo")
                 option("bar", "bar")
             }
 
             selectOne {
-                description="please select a One"
+                description = "please select a One"
                 option("foo", "foo")
                 option("bar", "bar")
             }
 
-            booleanInput ()
-            booleanInput { description= "aBoolean Description" }
+            selectOne {
+                description = "Select a localDateTime"
+                option("2020-08-30T18:43".toLocalDateTime())
+                option("2020-08-31T17:43".toLocalDateTime())
+            }
+
+            selectMulti {
+                description = "Select a localDate"
+                option("2020-08-30".toLocalDate())
+                option("2020-08-31".toLocalDate())
+            }
+
+            booleanInput()
+            booleanInput { description = "aBoolean Description" }
         }
     }

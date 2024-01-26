@@ -2,6 +2,8 @@ package de.nielsfalk.formdsl.misc
 
 import de.nielsfalk.formdsl.misc.FormDataValue.ListValue
 import getPlatform
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,22 +16,31 @@ data class FormData(
 
 @Serializable
 sealed interface FormDataValue {
+    val value:Any
 
     @SerialName("String")
     @Serializable
-    data class StringValue(val value: String) : FormDataValue
+    data class StringValue(override val value: String) : FormDataValue
 
     @SerialName("List")
     @Serializable
-    data class ListValue(val value: List<FormDataValue>) : FormDataValue
+    data class ListValue(override val value: List<FormDataValue>) : FormDataValue
 
     @SerialName("Long")
     @Serializable
-    data class LongValue(val value: Long) : FormDataValue
+    data class LongValue(override val value: Long) : FormDataValue
 
     @SerialName("Boolean")
     @Serializable
-    data class BooleanValue(val value: Boolean) : FormDataValue
+    data class BooleanValue(override val value: Boolean) : FormDataValue
+
+    @SerialName("LocalDate")
+    @Serializable
+    data class LocalDateValue(override val value: LocalDate) : FormDataValue
+
+    @SerialName("LocalDateTime")
+    @Serializable
+    data class LocalDateTimeValue(override val value: LocalDateTime) : FormDataValue
 }
 
 fun ListValue?.toggle(value: FormDataValue): ListValue =

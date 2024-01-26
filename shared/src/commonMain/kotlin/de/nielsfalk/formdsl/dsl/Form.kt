@@ -7,7 +7,9 @@ import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectOne
 import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
 import de.nielsfalk.formdsl.dsl.Element.Label
 import de.nielsfalk.formdsl.misc.FormDataValue
-import de.nielsfalk.formdsl.misc.FormDataValue.StringValue
+import de.nielsfalk.formdsl.misc.FormDataValue.*
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -163,6 +165,13 @@ class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
 
     fun option(label: String, value: String) {
         options += SelectOption(Label(label), StringValue(value))
+    }
+
+    fun option(value:LocalDateTime){
+        options += SelectOption(null, LocalDateTimeValue(value))
+    }
+    fun option(value:LocalDate){
+        options += SelectOption(null, LocalDateValue(value))
     }
 
     fun buildMulti(): SelectMulti {

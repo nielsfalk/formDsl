@@ -47,4 +47,4 @@ fun SelectOne(element: Element.Input.SelectInput.SelectOne, dataValue: FormDataV
 }
 
 val SelectOption.text: String
-    get() = label?.content ?: value.toString()
+    get() = label?.content ?: value.value.toString()

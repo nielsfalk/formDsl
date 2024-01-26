@@ -1,5 +1,6 @@
 package de.nielsfalk.formdsl.dsl
 
+import de.nielsfalk.jsonUtil.defaultJson
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.encodeToString
@@ -7,7 +8,7 @@ import kotlinx.serialization.json.Json
 
 class FormTest : FreeSpec({
     val json = Json {
-        encodeDefaults = true
+        defaultJson()
         prettyPrint = true
     }
 
@@ -60,19 +61,16 @@ class FormTest : FreeSpec({
                             {
                                 "type": "TextInput",
                                 "id": "textInput0",
-                                "description": "aRootElement",
-                                "placeholder": null
+                                "description": "aRootElement"
                             },
                             {
                                 "type": "TextInput",
                                 "id": "textInput1",
-                                "description": "anotherRootElementWithNextGeneratedId",
-                                "placeholder": null
+                                "description": "anotherRootElementWithNextGeneratedId"
                             },
                             {
                                 "type": "BooleanInput",
-                                "id": "textInput2",
-                                "description": null
+                                "id": "textInput2"
                             }
                         ]
                     },
