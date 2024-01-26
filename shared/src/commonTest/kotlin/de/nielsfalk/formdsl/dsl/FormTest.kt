@@ -5,19 +5,40 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class FormTest:FreeSpec({
+class FormTest : FreeSpec({
     val json = Json {
         encodeDefaults = true
         prettyPrint = true
     }
 
-    "serialize form"{
+    "serialize form" {
         val form = form {
             id = "65ad3b7099fcc259a59a4f58"
             title = "a noodle survey"
+            textInput {
+                description = "aRootElement"
+            }
+            textInput {
+                description = "anotherRootElementWithNextGeneratedId"
+            }
             section {
                 label("select a date")
+                textInput {
+                    placehoder = "a placeholder"
+                    description = "a textInput description"
+                }
+
+            }
+            section{
+                id="aSectionId"
                 selectMulti {
+                    description = "a selectMulti description"
+                    option("foo", "foo")
+                    option("bar", "bar")
+                }
+                selectOne {
+                    id="aTextInputId"
+                    description = "a selectOne description"
                     option("foo", "foo")
                     option("bar", "bar")
                 }
@@ -33,14 +54,43 @@ class FormTest:FreeSpec({
                 "title": "a noodle survey",
                 "sections": [
                     {
+                        "id": "defaultSection",
+                        "elements": [
+                            {
+                                "type": "TextInput",
+                                "id": "textInput0",
+                                "description": "aRootElement",
+                                "placeholder": null
+                            },
+                            {
+                                "type": "TextInput",
+                                "id": "textInput1",
+                                "description": "anotherRootElementWithNextGeneratedId",
+                                "placeholder": null
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section0",
                         "elements": [
                             {
                                 "type": "Label",
                                 "content": "select a date"
                             },
                             {
+                                "type": "TextInput",
+                                "id": "section0-textInput0",
+                                "description": "a textInput description",
+                                "placeholder": "a placeholder"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "aSectionId",
+                        "elements": [
+                            {
                                 "type": "SelectMulti",
-                                "id": "selectMulti0",
+                                "id": "aSectionId-selectMulti0",
                                 "options": [
                                     {
                                         "label": {
@@ -54,7 +104,27 @@ class FormTest:FreeSpec({
                                         },
                                         "value": "bar"
                                     }
-                                ]
+                                ],
+                                "description": "a selectMulti description"
+                            },
+                            {
+                                "type": "SelectOne",
+                                "id": "aTextInputId",
+                                "options": [
+                                    {
+                                        "label": {
+                                            "content": "foo"
+                                        },
+                                        "value": "foo"
+                                    },
+                                    {
+                                        "label": {
+                                            "content": "bar"
+                                        },
+                                        "value": "bar"
+                                    }
+                                ],
+                                "description": "a selectOne description"
                             }
                         ]
                     }

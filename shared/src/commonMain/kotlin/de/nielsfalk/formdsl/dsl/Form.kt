@@ -2,6 +2,7 @@ package de.nielsfalk.formdsl.dsl
 
 import de.nielsfalk.bson.util.ObjectId
 import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectMulti
+import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectOne
 import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
 import de.nielsfalk.formdsl.dsl.Element.Label
 import kotlinx.serialization.SerialName
@@ -15,38 +16,47 @@ data class Form(
 )
 
 sealed class ElementsBuilder {
-    open var id: String? = null
+    var id: String? = null
     var elements: List<Element> = emptyList()
+    private val idPrefix: String?
+        get() = if (this is FormBuilder) null else id
+
     fun selectMulti(function: SelectBuilder.() -> Unit) {
-        elements += SelectBuilder(idPrefix = if (this is FormBuilder) null else id)
+        elements += SelectBuilder(idPrefix)
             .apply(function)
             .buildMulti()
+    }
+
+    fun selectOne(function: SelectBuilder.() -> Unit) {
+        elements += SelectBuilder(idPrefix)
+            .apply(function)
+            .buildOne()
     }
 
     fun label(text: String) {
         elements += Label(text)
     }
 
-    fun textInput(function: TextInputBuilder.() -> Unit){
-        elements += TextInputBuilder(idPrefix = if (this is FormBuilder) null else id)
+    fun textInput(function: TextInputBuilder.() -> Unit) {
+        elements += TextInputBuilder(idPrefix)
             .apply(function)
             .build()
     }
 }
 
 class FormBuilder : ElementsBuilder() {
-    override var id: String? = null
     var title: String = ""
     var sections: List<Section> = emptyList()
 
     fun section(function: SectionBuilder.() -> Unit) {
+        id = id ?: generateNextId("section")
         sections += SectionBuilder().apply(function).build()
     }
 
     fun build(): Form {
         if (elements.isNotEmpty()) {
             //add default section for root elements
-            sections = listOf(Section(elements)) + sections
+            sections = listOf(Section("defaultSection", elements)) + sections
         }
         return Form(
             ObjectId(id ?: throw IllegalArgumentException("id is required for form $title")),
@@ -58,11 +68,17 @@ class FormBuilder : ElementsBuilder() {
 
 @Serializable
 data class Section(
+    val id: String,
     val elements: List<Element>
 )
 
 class SectionBuilder : ElementsBuilder() {
-    fun build() = Section(elements)
+    init {
+        // id must be set early so it is known to prefix element Ids
+        id = id ?: generateNextId("section")
+    }
+
+    fun build() = Section(id ?: generateNextId("section"), elements)
 }
 
 @Serializable
@@ -74,12 +90,14 @@ sealed interface Element {
     @Serializable
     sealed interface Input : Element {
         val id: String
+        val description: String?
 
         @Serializable
         @SerialName("TextInput")
         data class TextInput(
             override val id: String,
-            val placeholder: String? = null
+            override val description: String?,
+            val placeholder: String?
         ) : Input
 
         @Serializable
@@ -89,15 +107,17 @@ sealed interface Element {
             @SerialName("SelectOne")
             @Serializable
             data class SelectOne(
+                override val id: String,
                 override val options: List<SelectOption>,
-                override val id: String
+                override val description: String?
             ) : SelectInput
 
             @SerialName("SelectMulti")
             @Serializable
             data class SelectMulti(
                 override val id: String,
-                override val options: List<SelectOption>
+                override val options: List<SelectOption>,
+                override val description: String?
             ) : SelectInput
         }
     }
@@ -108,7 +128,8 @@ class TextInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
 
     fun build(): TextInput =
         TextInput(
-            this.id ?: listOfNotNull(idPrefix, nextId("testInput")).joinToString("-"),
+            nextId("textInput"),
+            description,
             placehoder
         )
 }
@@ -122,14 +143,32 @@ class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
 
     fun buildMulti(): SelectMulti {
         return SelectMulti(
-            this.id ?: listOfNotNull(idPrefix, nextId("selectMulti")).joinToString("-"),
-            options
+            nextId("selectMulti"),
+            options,
+            description
+        )
+    }
+
+    fun buildOne(): SelectOne {
+        return SelectOne(
+            nextId("selectOne"),
+            options,
+            description
         )
     }
 }
 
-abstract class InputBuilder(val idPrefix: String?) {
+abstract class InputBuilder(
+    val idPrefix: String?
+) {
     var id: String? = null
+    var description: String? = null
+
+    fun nextId(inputType: String) =
+        id ?: generateNextId(
+            listOfNotNull(idPrefix, inputType)
+                .joinToString("-")
+        )
 }
 
 object IdSequences {
@@ -148,7 +187,7 @@ object IdSequences {
     private val prefixedIdSequence: MutableMap<String, Iterator<String>> = mutableMapOf()
 }
 
-fun nextId(idPrefix: String): String {
+fun generateNextId(idPrefix: String): String {
     return IdSequences[idPrefix].next()
 }
 
