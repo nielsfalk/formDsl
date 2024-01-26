@@ -2,6 +2,9 @@ package de.nielsfalk.formdsl.app.presentation
 
 import de.nielsfalk.formdsl.app.data.FormsRepository
 import de.nielsfalk.formdsl.app.presentation.FormEvent.ReloadForms
+import de.nielsfalk.formdsl.dsl.Element
+import de.nielsfalk.formdsl.dsl.Form
+import de.nielsfalk.formdsl.misc.FormData
 import de.nielsfalk.formdsl.misc.FormDataValue
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.delay
@@ -32,7 +35,10 @@ class FormsViewModel(
                     val form = repository.getForm(event.formId)
                     _state.update {
                         it.copy(
-                            selectedForm = SelectedState(form),
+                            selectedForm = SelectedState(
+                                form = form,
+                                data = FormData(form.defaultValues())
+                            ),
                             loading = false
                         )
                     }
@@ -94,3 +100,10 @@ class FormsViewModel(
         repository.close()
     }
 }
+
+private fun Form.defaultValues(): Map<String, FormDataValue> =
+    sections.flatMap { it.elements }
+        .mapNotNull { it as? Element.Input }
+        .filter { it.defaultValue != null }
+        .mapNotNull { it.defaultValue?.run { it.id to this } }
+        .toMap()
