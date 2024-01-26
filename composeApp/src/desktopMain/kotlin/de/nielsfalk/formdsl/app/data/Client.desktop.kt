@@ -1,5 +1,6 @@
 package de.nielsfalk.formdsl.app.data
 
+import de.nielsfalk.jsonUtil.defaultJson
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -9,7 +10,7 @@ import kotlinx.serialization.json.Json
 actual fun createClient(): HttpClient =
     HttpClient(OkHttp) {
         install(ContentNegotiation) {
-            json(Json { encodeDefaults = true })
+            json(Json { defaultJson() })
         }
     }
 

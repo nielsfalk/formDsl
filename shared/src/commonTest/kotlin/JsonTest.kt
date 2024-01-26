@@ -1,3 +1,4 @@
+import de.nielsfalk.jsonUtil.defaultJson
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.SerialName
@@ -7,7 +8,7 @@ import kotlinx.serialization.json.Json
 
 class JsonTest : FreeSpec({
 
-    val json = Json { encodeDefaults = true }
+    val json = Json { defaultJson() }
 
     "with map attribute" - {
         "encode" {

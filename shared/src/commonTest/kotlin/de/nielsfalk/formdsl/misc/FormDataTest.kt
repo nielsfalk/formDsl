@@ -2,6 +2,7 @@ package de.nielsfalk.formdsl.misc
 
 import de.nielsfalk.formdsl.misc.FormDataValue.LongValue
 import de.nielsfalk.formdsl.misc.FormDataValue.StringValue
+import de.nielsfalk.jsonUtil.defaultJson
 import getPlatform
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
@@ -11,7 +12,7 @@ import kotlinx.serialization.json.Json
 
 class FormDataTest : FreeSpec({
     val json = Json {
-        encodeDefaults = true
+        defaultJson()
         prettyPrint = true
     }
 

@@ -13,6 +13,7 @@ import de.nielsfalk.formdsl.forms.noodleId
 import de.nielsfalk.formdsl.misc.FormData
 import de.nielsfalk.formdsl.misc.FormDataValue.StringValue
 import de.nielsfalk.formdsl.misc.FormsList
+import de.nielsfalk.jsonUtil.defaultJson
 import io.kotest.core.Tag
 import io.kotest.core.extensions.TestCaseExtension
 import io.kotest.core.spec.style.FreeSpec
@@ -162,7 +163,7 @@ private fun String.withTestApp(
             }
             val client = createClient {
                 install(ContentNegotiation) {
-                    json(Json { encodeDefaults = true })
+                    json(Json { defaultJson() })
                 }
             }
             TestScopeWithClientAndDb(
