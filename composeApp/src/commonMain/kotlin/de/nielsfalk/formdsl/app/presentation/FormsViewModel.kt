@@ -48,7 +48,7 @@ class FormsViewModel(
             is FormEvent.FormDataChange -> {
                 _state.value.selectedForm?.let { selectedForm ->
                     val values = selectedForm.data.values +
-                            (event.element.id to FormDataValue.StringValue(event.value))
+                            (event.element.id to event.value)
                     _state.update { it.copy(values = values) }
 
                     viewModelScope.launch {

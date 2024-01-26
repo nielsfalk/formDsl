@@ -26,5 +26,8 @@ fun noodle() =
                 option("foo", "foo")
                 option("bar", "bar")
             }
+
+            booleanInput ()
+            booleanInput { description= "aBoolean Description" }
         }
     }

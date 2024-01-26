@@ -21,4 +21,8 @@ sealed interface FormDataValue {
     @SerialName("Long")
     @Serializable
     data class LongValue(val value: Long) : FormDataValue
+
+    @SerialName("Boolean")
+    @Serializable
+    data class BooleanValue(val value: Boolean) : FormDataValue
 }
