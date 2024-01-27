@@ -30,13 +30,31 @@ sealed class ElementsBuilder {
     fun selectMulti(function: SelectBuilder.() -> Unit) {
         elements += SelectBuilder(idPrefix)
             .apply(function)
-            .buildMulti()
+            .run {
+                SelectMulti(
+                    nextId("selectMulti"),
+                    options,
+                    description,
+                    defaultValue?.let(Companion::of)
+                        ?.let {
+                            if (it is ListValue) it
+                            else ListValue(listOf(it))
+                        }
+                )
+            }
     }
 
     fun selectOne(function: SelectBuilder.() -> Unit) {
         elements += SelectBuilder(idPrefix)
             .apply(function)
-            .buildOne()
+            .run{
+                SelectOne(
+                    nextId("selectOne"),
+                    options,
+                    description,
+                    defaultValue?.let(Companion::of)
+                )
+            }
     }
 
     fun label(text: String) {
@@ -46,13 +64,26 @@ sealed class ElementsBuilder {
     fun textInput(function: TextInputBuilder.() -> Unit) {
         elements += TextInputBuilder(idPrefix)
             .apply(function)
-            .build()
+            .run {
+                TextInput(
+                    nextId("textInput"),
+                    description,
+                    placehoder,
+                    defaultValue?.let(::StringValue)
+                )
+            }
     }
 
     fun booleanInput(function: BooleanInputBuilder.() -> Unit = {}) {
         elements += BooleanInputBuilder(idPrefix)
             .apply(function)
-            .build()
+            .run {
+                BooleanInput(
+                    nextId("textInput"),
+                    description,
+                    defaultValue?.let(::BooleanValue)
+                )
+            }
     }
 }
 
@@ -62,19 +93,9 @@ class FormBuilder : ElementsBuilder() {
 
     fun section(function: SectionBuilder.() -> Unit) {
         id = id ?: generateNextId("section")
-        sections += SectionBuilder().apply(function).build()
-    }
-
-    fun build(): Form {
-        if (elements.isNotEmpty()) {
-            //add default section for root elements
-            sections = listOf(Section("defaultSection", elements)) + sections
-        }
-        return Form(
-            ObjectId(id ?: throw IllegalArgumentException("id is required for form $title")),
-            title,
-            sections
-        )
+        sections += SectionBuilder()
+            .apply(function)
+            .run { Section(id ?: generateNextId("section"), elements) }
     }
 }
 
@@ -89,8 +110,6 @@ class SectionBuilder : ElementsBuilder() {
         // id must be set early so it is known to prefix element Ids
         id = id ?: generateNextId("section")
     }
-
-    fun build() = Section(id ?: generateNextId("section"), elements)
 }
 
 @Serializable
@@ -150,30 +169,15 @@ sealed interface Element {
 class TextInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
     var placehoder: String? = null
     var defaultValue: String? = null
-
-    fun build(): TextInput =
-        TextInput(
-            nextId("textInput"),
-            description,
-            placehoder,
-            defaultValue?.let(::StringValue)
-        )
 }
 
 class BooleanInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
     var defaultValue: Boolean? = null
-
-    fun build(): BooleanInput =
-        BooleanInput(
-            nextId("textInput"),
-            description,
-            defaultValue?.let(::BooleanValue)
-        )
 }
 
 class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
     var defaultValue: Any? = null
-    private var options: List<SelectOption> = listOf()
+    var options: List<SelectOption> = listOf()
 
     fun option(value: String, label: String? = null) {
         options += SelectOption(label?.let(::Label), StringValue(value))
@@ -185,28 +189,6 @@ class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
 
     fun option(value: LocalDate) {
         options += SelectOption(null, LocalDateValue(value))
-    }
-
-    fun buildMulti(): SelectMulti {
-        return SelectMulti(
-            nextId("selectMulti"),
-            options,
-            description,
-            defaultValue?.let(Companion::of)
-                ?.let {
-                    if (it is ListValue) it
-                    else ListValue(listOf(it))
-                }
-        )
-    }
-
-    fun buildOne(): SelectOne {
-        return SelectOne(
-            nextId("selectOne"),
-            options,
-            description,
-            defaultValue?.let(Companion::of)
-        )
     }
 }
 
@@ -247,5 +229,15 @@ fun generateNextId(idPrefix: String): String {
 data class SelectOption(val label: Label?, val value: FormDataValue)
 
 fun form(function: FormBuilder.() -> Unit): Form =
-    FormBuilder().apply(function).build()
+    FormBuilder().apply(function).run {
+        if (elements.isNotEmpty()) {
+            //add default section for root elements
+            sections = listOf(Section("defaultSection", elements)) + sections
+        }
+        return Form(
+            ObjectId(id ?: throw IllegalArgumentException("id is required for form $title")),
+            title,
+            sections
+        )
+    }
 
