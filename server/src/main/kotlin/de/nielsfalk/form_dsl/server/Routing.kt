@@ -1,13 +1,7 @@
 package de.nielsfalk.form_dsl.server
 
 import Greeting
-import com.mongodb.client.model.Filters.and
-import com.mongodb.client.model.Filters.eq
-import com.mongodb.kotlin.client.coroutine.MongoClient
-import com.mongodb.kotlin.client.coroutine.MongoCollection
-import com.mongodb.kotlin.client.coroutine.MongoDatabase
-import de.nielsfalk.form_dsl.server.db.*
-import de.nielsfalk.formdsl.forms.allForms
+import de.nielsfalk.form_dsl.server.db.toModel
 import de.nielsfalk.formdsl.misc.FormData
 import de.nielsfalk.formdsl.misc.FormsList
 import de.nielsfalk.formdsl.misc.FormsListItem
@@ -18,12 +12,9 @@ import io.ktor.server.plugins.autohead.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.flow.firstOrNull
-import org.bson.types.ObjectId
 
 fun Application.configureRouting(
-    database: MongoDatabase = MongoClient.create().getDatabase("formDsl"),
-    collection: MongoCollection<FormDataEntity> = database.lazyGetCollection<FormDataEntity>("formData")
+    service: FormService = FormService()
 ) {
 
     install(AutoHeadResponse)
@@ -31,7 +22,10 @@ fun Application.configureRouting(
         get("/") {
             call.respondText(Greeting().greet())
         }
+
         get("/forms") {
+            val allForms = service.allForms
+
             call.respond(
                 FormsList(
                     allForms.map {
@@ -42,74 +36,51 @@ fun Application.configureRouting(
                     })
             )
         }
+
         get("/forms/{formId}") {
-            val id = call.parameters["formId"]
-            val form = allForms.firstOrNull { it.id.hexString == id }
-            form?.let {
-                call.respond(it)
-            }
+            service[call.parameters["formId"]!!]
+                ?.let {
+                    call.respond(it)
+                }
         }
+
         post("/forms/{formId}/data") {
             val formId = call.parameters["formId"]!!
-            if (
-                ObjectId.isValid(formId) &&
-                allForms.any { it.id.hexString == formId }
-            ) {
-                val data = call.receive<FormData>()
-                val insertOneResult = collection.insertOne(
-                    FormDataEntity(
-                        formId = ObjectId(formId),
-                        values = data.values
-                    )
-                )
-                insertOneResult.insertedId?.asObjectId()?.value?.let { id ->
+            val data = call.receive<FormData>()
+
+            service.insertData(
+                formId = formId,
+                data = data
+            )
+                ?.let { id ->
                     call.response.header("Location", "/forms/$formId/data/$id")
                     call.respond(Created, data)
                 }
-            }
         }
+
         get("/forms/{formId}/data/{formDataId}") {
-            val formId = call.parameters["formId"]
-            val formDataId = call.parameters["formDataId"]
-            if (
-                ObjectId.isValid(formId) &&
-                ObjectId.isValid(formDataId) &&
-                allForms.any { it.id.hexString == formId }
-            ) {
-                collection.findByIdAndFormId(
-                    ObjectId(formDataId),
-                    ObjectId(formId)
-                )?.let {
+            service.getData(
+                formId = call.parameters["formId"]!!,
+                formDataId = call.parameters["formDataId"]!!
+            )
+                ?.let {
                     call.respond(it.toModel())
                 }
-            }
         }
+
         put("/forms/{formId}/data/{formDataId}") {
-            val formId = call.parameters["formId"]
-            val formDataId = call.parameters["formDataId"]
-            if (
-                ObjectId.isValid(formId) &&
-                ObjectId.isValid(formDataId) &&
-                allForms.any { it.id.hexString == formId }
-            ) {
-                val data = call.receive<FormData>()
-                collection.findById(ObjectId(formDataId))?.let { oldEntity ->
-                    if (oldEntity.version == data.version) {
-                        val version = oldEntity.version + 1
-                        collection.updateOne(ObjectId(formDataId), data.toEntity(formDataId, formId).copy(version = version))
-                        call.respond(data.copy(version = version))
-                    } else
-                        call.respond(Conflict, "$formDataId is outdated")
-                }
-            }
+            val formDataId = call.parameters["formDataId"]!!
+            val data = call.receive<FormData>()
+
+            val result = service.updateData(
+                formId = call.parameters["formId"]!!,
+                formDataId = formDataId,
+                data = data
+            )
+
+            if (result.outdated)
+                call.respond(Conflict, "$formDataId is outdated")
+            else result.version?.let { call.respond(data.copy(version = it)) }
         }
     }
 }
-
-suspend fun <T : Any> MongoCollection<T>.findByIdAndFormId(id: ObjectId, formId: ObjectId): T? =
-    find(
-        and(
-            eq("_id", id),
-            eq("formId", formId)
-        )
-    ).firstOrNull()

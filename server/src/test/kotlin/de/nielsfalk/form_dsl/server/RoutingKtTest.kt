@@ -151,15 +151,15 @@ private fun String.withTestApp(
     ) {
         val database = MongoClient.create().getDatabase("test")
         val collection = database.lazyGetCollection<FormDataEntity>("formData")
+        val service = FormService(
+            database,
+            collection
+        )
 
         testApplication {
             application {
                 configureSerialization()
-
-                configureRouting(
-                    database,
-                    collection
-                )
+                configureRouting(service)
             }
             val client = createClient {
                 install(ContentNegotiation) {

@@ -20,12 +20,14 @@ data class FormDataEntity(
 
 fun FormData.toEntity(
     formDataId: String?,
-    formId: String?
+    formId: String?,
+    version: Long = 0
 ): FormDataEntity =
     FormDataEntity(
         id = ObjectId(formDataId),
         formId = ObjectId(formId),
-        values = values
+        values = values,
+        version = version
     )
 
 fun FormDataEntity.toModel(): FormData =
