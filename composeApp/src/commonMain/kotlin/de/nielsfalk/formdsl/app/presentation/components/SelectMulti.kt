@@ -14,15 +14,13 @@ import androidx.compose.ui.unit.dp
 import de.nielsfalk.formdsl.app.presentation.FormEvent
 import de.nielsfalk.formdsl.app.presentation.FormEvent.FormDataChange
 import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectMulti
-import de.nielsfalk.formdsl.misc.FormDataValue
+import de.nielsfalk.formdsl.misc.*
 import de.nielsfalk.formdsl.misc.FormDataValue.ListValue
-import de.nielsfalk.formdsl.misc.set
-import de.nielsfalk.formdsl.misc.toggle
 
 @Composable
 fun SelectMulti(
     element: SelectMulti,
-    dataValue: FormDataValue?,
+    listValue: ListValue?,
     onEvent: (FormEvent) -> Unit
 ) {
     element.options.forEach { option ->
@@ -30,14 +28,14 @@ fun SelectMulti(
             Modifier
                 .fillMaxWidth()
                 .selectable(
-                    selected = (dataValue as? ListValue)?.value?.contains(option.value) == true,
-                    onClick = { onEvent(FormDataChange(element, (dataValue as? ListValue).toggle(option.value))) }
+                    selected = listValue?.value?.contains(option.value) == true,
+                    onClick = { onEvent(FormDataChange(element, listValue.toggle(option.value))) }
                 )
                 .padding(horizontal = 5.dp)
         ) {
             Switch(
-                checked = (dataValue as? ListValue)?.value?.contains(option.value) == true,
-                onCheckedChange = { onEvent(FormDataChange(element, (dataValue as? ListValue).set(option.value, it))) },
+                checked = listValue?.value?.contains(option.value) == true,
+                onCheckedChange = { onEvent(FormDataChange(element, listValue.set(option.value, it))) },
                 modifier = Modifier
                     .align(CenterVertically)
                     .size(21.dp)

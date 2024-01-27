@@ -14,27 +14,28 @@ import androidx.compose.ui.unit.dp
 import de.nielsfalk.formdsl.app.presentation.FormEvent
 import de.nielsfalk.formdsl.app.presentation.FormEvent.FormDataChange
 import de.nielsfalk.formdsl.dsl.Element.Input.BooleanInput
-import de.nielsfalk.formdsl.misc.FormDataValue
 import de.nielsfalk.formdsl.misc.FormDataValue.BooleanValue
+import de.nielsfalk.formdsl.misc.isTrue
+import de.nielsfalk.formdsl.misc.toggle
 
 @Composable
 fun BooleanInput(
     element: BooleanInput,
-    dataValue: FormDataValue?,
+    booleanValue: BooleanValue?,
     onEvent: (FormEvent) -> Unit
 ) {
     Row(
         Modifier
             .fillMaxWidth()
             .selectable(
-                selected = (dataValue as? BooleanValue)?.value == true,
-                onClick = { onEvent(FormDataChange(element, (dataValue as? BooleanValue)?.value != true)) }
+                selected = booleanValue.isTrue(),
+                onClick = { onEvent(FormDataChange(element, booleanValue.toggle())) }
             )
             .padding(horizontal = 5.dp)
     ) {
         Switch(
-            checked = (dataValue as? BooleanValue)?.value == true,
-            onCheckedChange = { onEvent(FormDataChange(element, it)) },
+            checked = booleanValue.isTrue(),
+            onCheckedChange = { onEvent(FormDataChange(element, BooleanValue(it))) },
             modifier = Modifier
                 .align(CenterVertically)
                 .size(21.dp)

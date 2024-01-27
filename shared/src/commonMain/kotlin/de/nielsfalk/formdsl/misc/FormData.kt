@@ -56,6 +56,12 @@ fun Companion.of(defaultValue: Any): FormDataValue =
         else -> throw Exception("can't transform $defaultValue to FormDataValue?")
     }
 
+fun BooleanValue?.isTrue() =
+    this?.value == true
+
+fun BooleanValue?.toggle() =
+    BooleanValue(!isTrue())
+
 fun ListValue?.toggle(value: FormDataValue): ListValue =
     set(value, this?.value?.contains(value) != true)
 

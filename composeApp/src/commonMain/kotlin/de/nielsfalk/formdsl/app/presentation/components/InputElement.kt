@@ -9,6 +9,7 @@ import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectMulti
 import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectOne
 import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
 import de.nielsfalk.formdsl.misc.FormDataValue
+import de.nielsfalk.formdsl.misc.FormDataValue.*
 
 @Composable
 fun InputElement(
@@ -20,9 +21,9 @@ fun InputElement(
         element.description?.let { Text(text = it) }
     }
     when (element) {
-        is SelectMulti -> SelectMulti(element, dataValue, onEvent)
+        is SelectMulti -> SelectMulti(element, dataValue as? ListValue, onEvent)
         is SelectOne -> SelectOne(element, dataValue, onEvent)
-        is TextInput -> TextInput(element, dataValue, onEvent)
-        is BooleanInput -> BooleanInput(element, dataValue, onEvent)
+        is TextInput -> TextInput(element, dataValue as? StringValue, onEvent)
+        is BooleanInput -> BooleanInput(element, dataValue as? BooleanValue, onEvent)
     }
 }

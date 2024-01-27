@@ -8,19 +8,18 @@ import androidx.compose.ui.Modifier
 import de.nielsfalk.formdsl.app.presentation.FormEvent
 import de.nielsfalk.formdsl.app.presentation.FormEvent.FormDataChange
 import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
-import de.nielsfalk.formdsl.misc.FormDataValue
 import de.nielsfalk.formdsl.misc.FormDataValue.StringValue
 
 @Composable
 fun TextInput(
     element: TextInput,
-    dataValue: FormDataValue?,
+    dataValue: StringValue?,
     onEvent: (FormEvent) -> Unit
 ) {
     TextField(
         placeholder = element.placeholder?.let { { Text(text = it) } },
-        value = (dataValue as? StringValue)?.value ?: "",
-        onValueChange = { onEvent(FormDataChange(element, it)) },
+        value = dataValue?.value ?: "",
+        onValueChange = { onEvent(FormDataChange(element, StringValue(it))) },
         modifier = Modifier.fillMaxSize()
     )
 }
