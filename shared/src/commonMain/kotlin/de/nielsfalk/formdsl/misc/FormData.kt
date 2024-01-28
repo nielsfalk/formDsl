@@ -65,10 +65,10 @@ fun BooleanValue?.toggle() =
 fun ListValue?.toggle(value: FormDataValue): ListValue =
     set(value, this?.value?.contains(value) != true)
 
-fun ListValue?.set(value: FormDataValue, add: Boolean): ListValue =
+fun ListValue?.set(value: FormDataValue, selected: Boolean): ListValue =
     this?.copy(
-        value = if (add)
+        value = if (selected)
             this.value + value
         else this.value - value
     )
-        ?: ListValue(listOf(value))
+        ?: ListValue(if (selected) listOf(value) else emptyList())
