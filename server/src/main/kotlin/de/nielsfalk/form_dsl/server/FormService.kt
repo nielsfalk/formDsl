@@ -35,12 +35,7 @@ class FormService(
             ObjectId.isValid(formId) &&
             allForms.any { it.id.hexString == formId }
         ) {
-            collection.insertOne(
-                FormDataEntity(
-                    formId = ObjectId(formId),
-                    values = data.values
-                )
-            )
+            collection.insertOne(data.toEntity(formId = formId, formDataId = null))
                 .insertedId?.asObjectId()?.value?.toHexString()
         } else null
 
@@ -78,7 +73,6 @@ class FormService(
         val version: Long? = null
     )
 }
-
 
 
 suspend fun <T : Any> MongoCollection<T>.findByIdAndFormId(id: ObjectId, formId: ObjectId): T? =

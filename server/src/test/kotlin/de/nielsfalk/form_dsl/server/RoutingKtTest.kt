@@ -14,6 +14,7 @@ import de.nielsfalk.formdsl.misc.FormData
 import de.nielsfalk.formdsl.misc.FormDataValue.StringValue
 import de.nielsfalk.formdsl.misc.FormsList
 import de.nielsfalk.jsonUtil.defaultJson
+import getPlatform
 import io.kotest.core.Tag
 import io.kotest.core.extensions.TestCaseExtension
 import io.kotest.core.spec.style.FreeSpec
@@ -72,7 +73,8 @@ class RoutingKtTest : FreeSpec({
             collection.findById(ObjectId(formDataId!!)) shouldBe FormDataEntity(
                 id = ObjectId(formDataId),
                 formId = ObjectId(noodleId),
-                values = formData.values
+                values = formData.values,
+                platform = getPlatform().name
             )
         }
     }
@@ -99,6 +101,7 @@ class RoutingKtTest : FreeSpec({
                 id = ObjectId(formDataId),
                 formId = ObjectId(noodleId),
                 values = mapOf("foo" to StringValue("buzz")),
+                platform = getPlatform().name,
                 version = 1
             )
         }

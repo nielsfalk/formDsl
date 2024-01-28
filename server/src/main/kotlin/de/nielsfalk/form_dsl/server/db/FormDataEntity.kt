@@ -15,6 +15,7 @@ data class FormDataEntity(
     @Contextual
     val formId: ObjectId,
     val values: Map<String, FormDataValue>,
+    val platform: String,
     val version: Long = 0
 )
 
@@ -24,9 +25,10 @@ fun FormData.toEntity(
     version: Long = 0
 ): FormDataEntity =
     FormDataEntity(
-        id = ObjectId(formDataId),
+        id = formDataId?.let(::ObjectId),
         formId = ObjectId(formId),
         values = values,
+        platform = platform,
         version = version
     )
 
