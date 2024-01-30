@@ -107,7 +107,7 @@ data class Section(
 
 class SectionBuilder : ElementsBuilder() {
     init {
-        // id must be set early so it is known to prefix element Ids
+        // id must be set early, so it is known to prefix element Ids
         id = id ?: generateNextId("section")
     }
 }
@@ -193,7 +193,7 @@ class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
 }
 
 abstract class InputBuilder(
-    val idPrefix: String?
+    private val idPrefix: String?
 ) {
     var id: String? = null
     var description: String? = null

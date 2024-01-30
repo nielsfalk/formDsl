@@ -13,7 +13,7 @@ import io.ktor.utils.io.core.*
 
 class FormsRepository : Closeable {
     private var _client: HttpClient? = null
-    val client: HttpClient by lazy { _client ?: createClient().also { _client = it } }
+    private val client: HttpClient by lazy { _client ?: createClient().also { _client = it } }
     override fun close() {
         _client?.close()
     }

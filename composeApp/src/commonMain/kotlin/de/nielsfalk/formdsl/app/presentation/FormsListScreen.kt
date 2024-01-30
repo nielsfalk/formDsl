@@ -10,7 +10,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.plcoding.contactscomposemultiplatform.contacts.presentation.components.FormsListItem
+import de.nielsfalk.formdsl.app.presentation.components.FormsListItem
 
 @Composable
 internal fun FormsListScreen(

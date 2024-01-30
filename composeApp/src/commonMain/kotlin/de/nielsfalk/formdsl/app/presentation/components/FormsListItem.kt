@@ -1,4 +1,4 @@
-package com.plcoding.contactscomposemultiplatform.contacts.presentation.components
+package de.nielsfalk.formdsl.app.presentation.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Text
@@ -16,7 +16,7 @@ fun FormsListItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "$formName",
+            text = formName,
             modifier = Modifier.weight(1f)
         )
     }

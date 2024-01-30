@@ -81,11 +81,11 @@ data class ObjectId(
     }
 
     fun originalHashCode(): Int {
-        var result: Int = timestamp.toInt();
-        result = 31 * result + counter;
-        result = 31 * result + randomValue1;
-        result = 31 * result + randomValue2;
-        return result;
+        var result: Int = timestamp.toInt()
+        result = 31 * result + counter
+        result = 31 * result + randomValue1
+        result = 31 * result + randomValue2
+        return result
     }
 
 
@@ -162,7 +162,7 @@ data class ObjectId(
             hexString
                 .also {
                     if (it.length != 24) {
-                        throw IllegalArgumentException("state should be: hexString has 24 characters");
+                        throw IllegalArgumentException("state should be: hexString has 24 characters")
                     }
                 }
                 .chunked(2)
