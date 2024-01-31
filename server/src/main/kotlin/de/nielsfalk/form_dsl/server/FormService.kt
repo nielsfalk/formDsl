@@ -1,13 +1,23 @@
 package de.nielsfalk.form_dsl.server
 
 import com.mongodb.client.model.Filters
+import com.mongodb.kotlin.client.coroutine.FindFlow
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
-import de.nielsfalk.form_dsl.server.db.*
+import de.nielsfalk.form_dsl.server.db.FormDataEntity
+import de.nielsfalk.form_dsl.server.db.findById
+import de.nielsfalk.form_dsl.server.db.lazyGetCollection
+import de.nielsfalk.form_dsl.server.db.toEntity
+import de.nielsfalk.form_dsl.server.db.updateOne
+import de.nielsfalk.formdsl.dsl.Element.Input
 import de.nielsfalk.formdsl.dsl.Form
 import de.nielsfalk.formdsl.misc.FormData
+import de.nielsfalk.formdsl.misc.FormDataValue
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Instant
 import org.bson.types.ObjectId
 
 class FormService(
@@ -47,7 +57,7 @@ class FormService(
         if (
             ObjectId.isValid(formId) &&
             ObjectId.isValid(formDataId) &&
-            de.nielsfalk.formdsl.forms.allForms.any { it.id.hexString == formId }
+            allForms.any { it.id.hexString == formId }
         ) {
             val oldEntity = collection.findById(ObjectId(formDataId))
             if (oldEntity != null) {
@@ -68,6 +78,36 @@ class FormService(
         return UpdateResult()
     }
 
+    suspend fun evaluate(formId: String): Pair<List<String>, Flow<List<Any>>>? =
+        if (
+            ObjectId.isValid(formId)
+
+        ) {
+            allForms.firstOrNull { it.id.hexString == formId }
+                ?.let { form ->
+                    val inputElements = form.sections
+                        .flatMap { it.elements }
+                        .mapNotNull { it as? Input }
+                    val headers =
+                        listOf("created") + inputElements.map { "${it.id} ${it.description}" } + "platform"
+                    val rowFlow = collection.findByFormId(ObjectId(formId))
+                        .map { entry ->
+                            listOf(
+                                Instant.fromEpochSeconds(entry.id!!.timestamp.toLong()).toString()
+                            ) +
+                                    inputElements.map {
+                                        when (val formDataValue = entry.values[it.id]){
+                                            is FormDataValue.ListValue -> formDataValue.value.map(FormDataValue::value)
+                                            null -> ""
+                                            else -> formDataValue.value
+                                        }
+                                    } +
+                                    entry.platform
+                        }
+                    headers to rowFlow
+                }
+        } else null
+
     data class UpdateResult(
         val outdated: Boolean = false,
         val version: Long? = null
@@ -82,3 +122,10 @@ suspend fun <T : Any> MongoCollection<T>.findByIdAndFormId(id: ObjectId, formId:
             Filters.eq("formId", formId)
         )
     ).firstOrNull()
+
+fun <T : Any> MongoCollection<T>.findByFormId(formId: ObjectId): FindFlow<T> =
+    find(
+        Filters.and(
+            Filters.eq("formId", formId)
+        )
+    )

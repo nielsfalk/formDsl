@@ -8,10 +8,13 @@ import de.nielsfalk.formdsl.misc.FormsListItem
 import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.server.application.*
+import io.ktor.server.html.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.flow.toList
+import kotlinx.html.*
 
 fun Application.configureRouting(
     service: FormService = FormService()
@@ -82,5 +85,55 @@ fun Application.configureRouting(
                 call.respond(Conflict, "$formDataId is outdated")
             else result.version?.let { call.respond(data.copy(version = it)) }
         }
+
+        get("/forms/{formId}/evaluation") {
+            service.evaluate(call.parameters["formId"]!!)?.let { (headers, rowFlow) ->
+                val rows = rowFlow.toList()
+                call.respondHtml {
+                    head {
+                        style {
+                            +tableStyle
+                        }
+                    }
+                    body {
+                        table {
+                            thead {
+                                tr {
+                                    headers.forEach {
+                                        th {
+                                            +it
+                                        }
+                                    }
+                                }
+                            }
+                            tbody {
+                                rows.forEach { row ->
+                                    tr {
+                                        row.forEach { value ->
+                                            td {
+                                                when (value) {
+                                                    is List<*> -> {
+                                                        value.forEach {
+                                                            p { +it.toString() }
+                                                        }
+                                                    }
+
+                                                    else -> {
+                                                        +value.toString()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
+
+val tableStyle = Routing::class.java.getResource("/tableStyle.css")!!.readText()
+

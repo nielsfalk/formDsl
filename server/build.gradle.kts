@@ -28,6 +28,9 @@ dependencies {
     implementation(libs.ktor.server.auto.head.response)
     implementation(libs.mongodb.driver.kotlin.coroutine)
     implementation(libs.mongodb.bson.kotlinx )
+    implementation(libs.ktor.server.html.builder)
+    implementation(libs.kotlinx.datetime)
+
 
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.framework.engine)

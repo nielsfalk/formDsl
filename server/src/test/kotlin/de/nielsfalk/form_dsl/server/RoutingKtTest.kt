@@ -9,9 +9,10 @@ import de.nielsfalk.form_dsl.server.db.lazyGetCollection
 import de.nielsfalk.form_dsl.server.plugins.configureSerialization
 import de.nielsfalk.formdsl.dsl.Form
 import de.nielsfalk.formdsl.forms.allForms
+import de.nielsfalk.formdsl.forms.noodle
 import de.nielsfalk.formdsl.forms.noodleId
 import de.nielsfalk.formdsl.misc.FormData
-import de.nielsfalk.formdsl.misc.FormDataValue.StringValue
+import de.nielsfalk.formdsl.misc.FormDataValue.*
 import de.nielsfalk.formdsl.misc.FormsList
 import de.nielsfalk.jsonUtil.defaultJson
 import getPlatform
@@ -24,16 +25,20 @@ import io.kotest.core.test.TestScope
 import io.kotest.matchers.collections.contain
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
 import org.bson.types.ObjectId
 import kotlin.time.Duration
@@ -43,7 +48,7 @@ class RoutingKtTest : FreeSpec({
         client.get("/forms").apply {
 
             status shouldBe OK
-            body<FormsList>().forms.map { it.title } should contain("a noodle survey")
+            body<FormsList>().forms.map { it.title } should contain("a Noodle survey")
         }
     }
 
@@ -57,7 +62,18 @@ class RoutingKtTest : FreeSpec({
         }
     }
 
-    val formData = FormData(values = mapOf("foo" to StringValue(value = "bar")))
+    val formData = FormData(
+        values = mapOf(
+            "name" to StringValue(value = "Niels Falk"),
+            "noodleSection-selectMulti0" to ListValue(
+                listOf(
+                    "2024-08-30T18:43".toLocalDateTime(),
+                    "2024-08-31T18:43".toLocalDateTime()
+                ).map(::LocalDateTimeValue)
+            )
+
+        )
+    )
     var formDataId: String? = null
 
     "POST /forms/{formId}/data".withTestApp {
@@ -88,7 +104,8 @@ class RoutingKtTest : FreeSpec({
     }
 
     "PUT /forms/{formId}/data/{formDataId}".withTestApp {
-        val updateData = formData.copy(values = mapOf("foo" to StringValue("buzz")))
+        val updateData =
+            formData.copy(values = formData.values + ("name" to StringValue("Niels J. Falk")))
 
         client.put("/forms/$noodleId/data/$formDataId") {
             setBody(updateData)
@@ -100,7 +117,7 @@ class RoutingKtTest : FreeSpec({
             collection.findById(ObjectId(formDataId!!)) shouldBe FormDataEntity(
                 id = ObjectId(formDataId),
                 formId = ObjectId(noodleId),
-                values = mapOf("foo" to StringValue("buzz")),
+                values = updateData.values,
                 platform = getPlatform().name,
                 version = 1
             )
@@ -118,6 +135,25 @@ class RoutingKtTest : FreeSpec({
             status shouldBe Conflict
             body<String>() shouldBe "$formDataId is outdated"
         }
+    }
+
+    "GET /forms/{formId}/evaluation".withTestApp {
+        client.get("/forms/$noodleId/evaluation")
+            .apply {
+
+                status shouldBe OK
+                bodyAsText().apply {
+                    shouldContain("<th>created</th>")
+                    shouldContain("<th>name Please enter your name</th>")
+                    shouldContain("<th>noodleSection-selectMulti0 Do you have time on</th>")
+                    shouldContain("<th>platform</th>")
+                    shouldContain("<td>${Instant.fromEpochSeconds(ObjectId(formDataId).timestamp.toLong()).toString()}</td>")
+                    shouldContain("<td>Niels J. Falk</td>")
+                    shouldContain("<p>2024-08-30T18:43</p>")
+                    shouldContain("<p>2024-08-31T18:43</p>")
+                    shouldContain("<td>Java")
+                }
+            }
     }
 })
 
@@ -156,7 +192,8 @@ private fun String.withTestApp(
         val collection = database.lazyGetCollection<FormDataEntity>("formData")
         val service = FormService(
             database,
-            collection
+            collection,
+            allForms
         )
 
         testApplication {

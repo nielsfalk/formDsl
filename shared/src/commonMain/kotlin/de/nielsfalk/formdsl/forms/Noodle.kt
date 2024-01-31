@@ -12,7 +12,9 @@ fun noodle() =
         title = "a Noodle survey"
         label("Noodle is something like Doodle")
         section {
+            id= "noodleSection"
             textInput {
+                id = "name"
                 description = "Please enter your name"
                 placehoder = "Name"
             }
