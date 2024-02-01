@@ -7,7 +7,12 @@ import de.nielsfalk.formdsl.dsl.Element.Input.SelectInput.SelectOne
 import de.nielsfalk.formdsl.dsl.Element.Input.TextInput
 import de.nielsfalk.formdsl.dsl.Element.Label
 import de.nielsfalk.formdsl.misc.FormDataValue
-import de.nielsfalk.formdsl.misc.FormDataValue.*
+import de.nielsfalk.formdsl.misc.FormDataValue.BooleanValue
+import de.nielsfalk.formdsl.misc.FormDataValue.Companion
+import de.nielsfalk.formdsl.misc.FormDataValue.ListValue
+import de.nielsfalk.formdsl.misc.FormDataValue.LocalDateTimeValue
+import de.nielsfalk.formdsl.misc.FormDataValue.LocalDateValue
+import de.nielsfalk.formdsl.misc.FormDataValue.StringValue
 import de.nielsfalk.formdsl.misc.of
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -21,14 +26,24 @@ data class Form(
     val sections: List<Section>
 )
 
-sealed class ElementsBuilder {
+sealed class ElementsBuilder(
+    private val generateNextId: (String) -> String
+) {
     var id: String? = null
     var elements: List<Element> = emptyList()
     private val idPrefix: String?
-        get() = if (this is FormBuilder) null else id
+        get() = when (this) {
+            is FormBuilder -> null
+            is SectionBuilder -> {
+                if (id == null) {
+                    id = generateNextId("section")
+                }
+                id
+            }
+        }
 
     fun selectMulti(function: SelectBuilder.() -> Unit) {
-        elements += SelectBuilder(idPrefix)
+        elements += SelectBuilder(idPrefix, generateNextId)
             .apply(function)
             .run {
                 SelectMulti(
@@ -45,9 +60,9 @@ sealed class ElementsBuilder {
     }
 
     fun selectOne(function: SelectBuilder.() -> Unit) {
-        elements += SelectBuilder(idPrefix)
+        elements += SelectBuilder(idPrefix, generateNextId)
             .apply(function)
-            .run{
+            .run {
                 SelectOne(
                     nextId("selectOne"),
                     options,
@@ -62,7 +77,7 @@ sealed class ElementsBuilder {
     }
 
     fun textInput(function: TextInputBuilder.() -> Unit) {
-        elements += TextInputBuilder(idPrefix)
+        elements += TextInputBuilder(idPrefix, generateNextId)
             .apply(function)
             .run {
                 TextInput(
@@ -75,7 +90,7 @@ sealed class ElementsBuilder {
     }
 
     fun booleanInput(function: BooleanInputBuilder.() -> Unit = {}) {
-        elements += BooleanInputBuilder(idPrefix)
+        elements += BooleanInputBuilder(idPrefix, generateNextId)
             .apply(function)
             .run {
                 BooleanInput(
@@ -87,12 +102,13 @@ sealed class ElementsBuilder {
     }
 }
 
-class FormBuilder : ElementsBuilder() {
+class FormBuilder(private val generateNextId: (String) -> String) :
+    ElementsBuilder(generateNextId) {
     var title: String = ""
     var sections: List<Section> = emptyList()
 
     fun section(function: SectionBuilder.() -> Unit) {
-        sections += SectionBuilder()
+        sections += SectionBuilder(generateNextId)
             .apply(function)
             .run { Section(id ?: generateNextId("section"), elements) }
     }
@@ -104,12 +120,8 @@ data class Section(
     val elements: List<Element>
 )
 
-class SectionBuilder : ElementsBuilder() {
-    init {
-        // id must be set early, so it is known to prefix element Ids
-        id = id ?: generateNextId("section")
-    }
-}
+class SectionBuilder(generateNextId: (String) -> String) :
+    ElementsBuilder(generateNextId)
 
 @Serializable
 sealed interface Element {
@@ -165,16 +177,19 @@ sealed interface Element {
     }
 }
 
-class TextInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
+class TextInputBuilder(idPrefix: String?, generateNextId: (String) -> String) :
+    InputBuilder(idPrefix, generateNextId) {
     var placehoder: String? = null
     var defaultValue: String? = null
 }
 
-class BooleanInputBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
+class BooleanInputBuilder(idPrefix: String?, generateNextId: (String) -> String) :
+    InputBuilder(idPrefix, generateNextId) {
     var defaultValue: Boolean? = null
 }
 
-class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
+class SelectBuilder(idPrefix: String?, generateNextId: (String) -> String) :
+    InputBuilder(idPrefix, generateNextId) {
     var defaultValue: Any? = null
     var options: List<SelectOption> = listOf()
 
@@ -192,43 +207,33 @@ class SelectBuilder(idPrefix: String?) : InputBuilder(idPrefix) {
 }
 
 abstract class InputBuilder(
-    private val idPrefix: String?
+    private val idPrefix: String?,
+    private val generateNextId: (String) -> String
 ) {
     var id: String? = null
     var description: String? = null
 
     fun nextId(inputType: String) =
-        id ?: generateNextId(
-            listOfNotNull(idPrefix, inputType)
-                .joinToString("-")
-        )
-}
-
-object IdSequences {
-    operator fun get(idPrefix: String): Iterator<String> {
-        return prefixedIdSequence.getOrPut(idPrefix) {
-            sequence {
-                var counter = 0UL
-                while (true) {
-                    this.yield("$idPrefix$counter")
-                    counter++
-                }
-            }.iterator()
-        }
-    }
-
-    private val prefixedIdSequence: MutableMap<String, Iterator<String>> = mutableMapOf()
-}
-
-fun generateNextId(idPrefix: String): String {
-    return IdSequences[idPrefix].next()
+        id ?: generateNextId(idPrefix?.let { "$it-$inputType" } ?: inputType)
 }
 
 @Serializable
 data class SelectOption(val label: Label?, val value: FormDataValue)
 
-fun form(function: FormBuilder.() -> Unit): Form =
-    FormBuilder().apply(function).run {
+fun form(function: FormBuilder.() -> Unit): Form {
+    val prefixedIdSequence: MutableMap<String, Iterator<String>> = mutableMapOf()
+    val generateNextId: (String) -> String = {
+        prefixedIdSequence.getOrPut(it) {
+            sequence {
+                var counter = 0UL
+                while (true) {
+                    this.yield("$it$counter")
+                    counter++
+                }
+            }.iterator()
+        }.next()
+    }
+    return FormBuilder(generateNextId).apply(function).run {
         if (elements.isNotEmpty()) {
             //add default section for root elements
             sections = listOf(Section("defaultSection", elements)) + sections
@@ -239,6 +244,7 @@ fun form(function: FormBuilder.() -> Unit): Form =
             sections
         ).also(Form::ensureUniqueIds)
     }
+}
 
 fun Form.ensureUniqueIds() {
     val allIds = sections.map { it.id } +

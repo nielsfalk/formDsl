@@ -1,5 +1,6 @@
 package de.nielsfalk.formdsl.dsl
 
+import de.nielsfalk.formdsl.dsl.Element.Input
 import de.nielsfalk.jsonUtil.defaultJson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
@@ -23,7 +24,19 @@ class FormTest : FreeSpec({
         }
 
             .message shouldBe "ids [duplicateId] were used multiple times"
+    }
 
+    "idGenerator start with new form" {
+        form {
+            id = "65bc12b6abd2e429a5e83646"
+            textInput { }
+        }
+        val secondFormWithDefaultTextInputId = form {
+            id = "65bc12aefe87d95e2a3619c0"
+            textInput { }
+        }
+
+        (secondFormWithDefaultTextInputId.sections.first().elements.first() as Input).id shouldBe "textInput0"
     }
 
     "serialize form" {
