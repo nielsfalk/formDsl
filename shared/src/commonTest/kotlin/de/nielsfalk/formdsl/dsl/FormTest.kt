@@ -1,6 +1,7 @@
 package de.nielsfalk.formdsl.dsl
 
 import de.nielsfalk.jsonUtil.defaultJson
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.toLocalDate
@@ -11,6 +12,18 @@ class FormTest : FreeSpec({
     val json = Json {
         defaultJson()
         prettyPrint = true
+    }
+    "Form.ensureUniqueIds" {
+        shouldThrow<IllegalArgumentException> {
+            form {
+                id = "65bc0a9536d7bd3a87e9172a"
+                textInput { id = "duplicateId" }
+                textInput { id = "duplicateId" }
+            }
+        }
+
+            .message shouldBe "ids [duplicateId] were used multiple times"
+
     }
 
     "serialize form" {

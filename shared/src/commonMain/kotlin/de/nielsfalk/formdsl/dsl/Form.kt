@@ -92,7 +92,6 @@ class FormBuilder : ElementsBuilder() {
     var sections: List<Section> = emptyList()
 
     fun section(function: SectionBuilder.() -> Unit) {
-        id = id ?: generateNextId("section")
         sections += SectionBuilder()
             .apply(function)
             .run { Section(id ?: generateNextId("section"), elements) }
@@ -234,10 +233,20 @@ fun form(function: FormBuilder.() -> Unit): Form =
             //add default section for root elements
             sections = listOf(Section("defaultSection", elements)) + sections
         }
-        return Form(
+        Form(
             ObjectId(id ?: throw IllegalArgumentException("id is required for form $title")),
             title,
             sections
-        )
+        ).also(Form::ensureUniqueIds)
     }
 
+fun Form.ensureUniqueIds() {
+    val allIds = sections.map { it.id } +
+            sections.flatMap { it.elements }
+                .mapNotNull { (it as? Element.Input)?.id }
+
+    val duplicateIds = allIds.groupBy { it }.filter { it.value.size > 1 }.keys
+    if (duplicateIds.isNotEmpty()) {
+        throw IllegalArgumentException("ids $duplicateIds were used multiple times")
+    }
+}
